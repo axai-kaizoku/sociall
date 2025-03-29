@@ -5,7 +5,10 @@ import { type Metadata } from "next"
 import { Geist } from "next/font/google"
 
 export const metadata: Metadata = {
-  title: "Social 00",
+  title: {
+    template: "%s | Sociall 00",
+    default: "Sociall 00",
+  },
   description: "A social media app",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 }

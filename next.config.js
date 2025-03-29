@@ -12,6 +12,11 @@ const config = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  experimental: {
+    staleTimes: {
+      dynamic: 30,
+    },
+  },
 }
 
 export default config
