@@ -1,8 +1,8 @@
 // src/auth.ts
 import { Lucia, type Session, type User } from "lucia"
-import { adapter } from "../db/schema"
-import { cache } from "react"
 import { cookies } from "next/headers"
+import { cache } from "react"
+import { adapter } from "../db/schema"
 
 export const lucia = new Lucia(adapter, {
   sessionCookie: {
@@ -55,7 +55,7 @@ export const validateRequest = cache(
     const result = await lucia.validateSession(sessionId)
 
     try {
-      if (result.session && result.session.fresh) {
+      if (result?.session?.fresh) {
         const sessionCookie = lucia.createSessionCookie(result.session.id)
         nextCookies.set(
           sessionCookie.name,

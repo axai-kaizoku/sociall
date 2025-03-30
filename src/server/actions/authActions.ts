@@ -1,20 +1,20 @@
 "use server"
 
+import { hash, verify } from "@node-rs/argon2"
+import { ilike } from "drizzle-orm"
 import { generateIdFromEntropySize } from "lucia"
+import { isRedirectError } from "next/dist/client/components/redirect-error"
+import { cookies } from "next/headers"
+import { redirect } from "next/navigation"
+import { lucia, validateRequest } from "../auth"
+import { db } from "../db"
+import { userTable } from "../db/schema"
 import {
   loginSchema,
   signUpSchema,
   type LoginValues,
   type SignUpValues,
 } from "../db/validation"
-import { hash, verify } from "@node-rs/argon2"
-import { db } from "../db"
-import { userTable } from "../db/schema"
-import { eq, ilike } from "drizzle-orm"
-import { lucia, validateRequest } from "../auth"
-import { cookies } from "next/headers"
-import { redirect } from "next/navigation"
-import { isRedirectError } from "next/dist/client/components/redirect-error"
 
 export async function signUp(
   credentials: SignUpValues
@@ -90,13 +90,13 @@ export async function login(
       .from(userTable)
       .where(ilike(userTable.username, username))
 
-    if (!existingUser || !existingUser.passwordHash) {
+    if (!existingUser?.passwordHash) {
       return {
         error: "Incorrect username or password",
       }
     }
 
-    const validPassword = await verify(existingUser.passwordHash, password, {
+    const validPassword = await verify(existingUser?.passwordHash, password, {
       memoryCost: 19456,
       timeCost: 2,
       outputLen: 32,
