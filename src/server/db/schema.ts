@@ -5,8 +5,8 @@ import { sql } from "drizzle-orm"
 import { index, pgTableCreator, varchar } from "drizzle-orm/pg-core"
 
 import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle"
-import { text, timestamp } from "drizzle-orm/pg-core"
 import { drizzle } from "drizzle-orm/node-postgres"
+import { text, timestamp } from "drizzle-orm/pg-core"
 import pg from "pg"
 
 /**
@@ -54,6 +54,6 @@ const sessionTable = createTable("session", {
   }).notNull(),
 })
 
-export { userTable, sessionTable }
+export { sessionTable, userTable }
 
 export const adapter = new DrizzlePostgreSQLAdapter(db, sessionTable, userTable)

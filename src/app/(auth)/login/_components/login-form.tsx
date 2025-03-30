@@ -10,7 +10,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input, PasswordInput } from "@/components/ui/input"
-import { login } from "@/server/actions/auth"
+import { login } from "@/server/actions/authActions"
 import { loginSchema, type LoginValues } from "@/server/db/validation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useState, useTransition } from "react"
