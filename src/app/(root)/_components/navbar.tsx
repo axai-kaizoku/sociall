@@ -1,3 +1,5 @@
+import { SearchField } from "@/components/common/search-field"
+import { UserButton } from "@/components/common/user/user-button"
 import Link from "next/link"
 
 export const Navbar = () => {
@@ -7,6 +9,8 @@ export const Navbar = () => {
         <Link href="/" className="text-2xl font-bold text-primary">
           Sociall
         </Link>
+        <SearchField />
+        <UserButton className="sm:ms-auto" />
       </div>
     </header>
   )
