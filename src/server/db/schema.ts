@@ -54,4 +54,6 @@ const sessionTable = createTable("session", {
   }).notNull(),
 })
 
+export { userTable, sessionTable }
+
 export const adapter = new DrizzlePostgreSQLAdapter(db, sessionTable, userTable)

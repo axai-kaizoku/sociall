@@ -1,1 +1,0 @@
-DROP TABLE "sociall_post" CASCADE;
