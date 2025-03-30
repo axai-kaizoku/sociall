@@ -90,13 +90,13 @@ export async function login(
       .from(userTable)
       .where(ilike(userTable.username, username))
 
-    if (!existingUser || !existingUser.passwordHash) {
+    if (!existingUser?.passwordHash) {
       return {
         error: "Incorrect username or password",
       }
     }
 
-    const validPassword = await verify(existingUser.passwordHash, password, {
+    const validPassword = await verify(existingUser?.passwordHash, password, {
       memoryCost: 19456,
       timeCost: 2,
       outputLen: 32,
