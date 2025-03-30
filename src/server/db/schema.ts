@@ -19,7 +19,7 @@ export const createTable = pgTableCreator((name) => `sociall_${name}`)
 
 // ----
 
-const pool = new pg.Pool()
+const pool = new pg.Pool({ ssl: true })
 const db = drizzle(pool)
 
 const userTable = createTable(
