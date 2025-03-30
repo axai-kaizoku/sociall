@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { SignUpForm } from "./_components/signup-form"
+
 export const metadata: Metadata = {
   title: "Sign Up",
 }
