@@ -1,8 +1,7 @@
-// src/auth.ts
 import { Lucia, type Session, type User } from "lucia"
 import { cookies } from "next/headers"
 import { cache } from "react"
-import { adapter } from "../db/schema"
+import { adapter } from "./db/schema"
 
 export const lucia = new Lucia(adapter, {
   sessionCookie: {

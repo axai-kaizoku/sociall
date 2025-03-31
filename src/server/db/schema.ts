@@ -2,12 +2,12 @@
 // https://orm.drizzle.team/docs/sql-schema-declaration
 
 import { sql } from "drizzle-orm"
-import { index, pgTableCreator, varchar } from "drizzle-orm/pg-core"
+import { index, pgTableCreator, serial, varchar } from "drizzle-orm/pg-core"
 
 import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle"
 import { drizzle } from "drizzle-orm/node-postgres"
 import { text, timestamp } from "drizzle-orm/pg-core"
-import pg from "pg"
+import { Pool } from "pg"
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -19,7 +19,7 @@ export const createTable = pgTableCreator((name) => `sociall_${name}`)
 
 // ----
 
-const pool = new pg.Pool({ ssl: true })
+const pool = new Pool({ ssl: true })
 const db = drizzle(pool)
 
 const userTable = createTable(
@@ -54,6 +54,18 @@ const sessionTable = createTable("session", {
   }).notNull(),
 })
 
-export { sessionTable, userTable }
+const postTable = createTable("post", {
+  id: serial("id").primaryKey().generatedAlwaysAs(6),
+  content: varchar("content", { length: 4096 }),
+  userId: text("user_id")
+    .notNull()
+    .references(() => userTable.id, { onDelete: "cascade" }),
+
+  createdAt: timestamp({ withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+})
+
+export { postTable, sessionTable, userTable }
 
 export const adapter = new DrizzlePostgreSQLAdapter(db, sessionTable, userTable)
