@@ -2,7 +2,7 @@
 // https://orm.drizzle.team/docs/sql-schema-declaration
 
 import { sql } from "drizzle-orm"
-import { index, pgTableCreator, serial, varchar } from "drizzle-orm/pg-core"
+import { index, pgTableCreator, uuid, varchar } from "drizzle-orm/pg-core"
 
 import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle"
 import { drizzle } from "drizzle-orm/node-postgres"
@@ -43,6 +43,8 @@ const userTable = createTable(
   }
 )
 
+export type User = typeof userTable.$inferSelect
+
 const sessionTable = createTable("session", {
   id: text("id").primaryKey(),
   userId: text("user_id")
@@ -55,7 +57,7 @@ const sessionTable = createTable("session", {
 })
 
 const postTable = createTable("post", {
-  id: serial("id").primaryKey().generatedAlwaysAs(6),
+  id: uuid().defaultRandom().primaryKey(),
   content: varchar("content", { length: 4096 }),
   userId: text("user_id")
     .notNull()
@@ -65,6 +67,8 @@ const postTable = createTable("post", {
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
 })
+
+export type Post = typeof postTable.$inferSelect
 
 export { postTable, sessionTable, userTable }
 
