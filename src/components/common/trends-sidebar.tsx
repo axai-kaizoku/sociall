@@ -72,7 +72,7 @@ async function WhoToFollow() {
 }
 
 const getTrendingTopics = unstable_cache(
-  async () => {
+  async (): Promise<{ hashtag: string; count: number }[]> => {
     // const result = await db
     //   .select({
     //     data: sql<{ hashtag: string; count: bigint }[]>`
@@ -96,8 +96,8 @@ const getTrendingTopics = unstable_cache(
     //   .from(postTable)
     //   .groupBy(sql`${postTable.content}`)
 
-    const res1 = await db.execute(
-      sql<{ hashtag: string }[]>`
+    const result = await db.execute(
+      sql<{ hashtag: string; count: bigint }[]>`
           SELECT unnest(regexp_matches(content, '#[a-zA-Z0-9_]+', 'g')) AS hashtag, count(*) AS count
           FROM ${postTable}
           GROUP BY (hashtag)
@@ -106,13 +106,20 @@ const getTrendingTopics = unstable_cache(
         `
     )
 
-    console.log(res1)
+    // console.log(res1)
     // .orderBy(sql`${postTable.createdAt} desc nulls first`)
+    // [
+    //   { hashtag: '#chill', count: '2' },
+    //   { hashtag: '#react', count: '2' },
+    //   { hashtag: '#axai', count: '1' },
+    //   { hashtag: '#nextjs', count: '1' },
+    //   { hashtag: '#typescript', count: '1' }
+    // ]
 
-    // return result[0]?.data.map((row) => ({
-    //   hashtag: row.hashtag,
-    //   count: Number(row.count),
-    // }))
+    return result?.map((row) => ({
+      hashtag: row.hashtag as string,
+      count: Number(row.count),
+    }))
     // console.log(result)
   },
   ["trending_topics"],
