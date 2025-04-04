@@ -1,7 +1,7 @@
 // Example model schema from the Drizzle docs
 // https://orm.drizzle.team/docs/sql-schema-declaration
 
-import { sql } from "drizzle-orm"
+import { relations, sql } from "drizzle-orm"
 import { index, pgTableCreator, uuid, varchar } from "drizzle-orm/pg-core"
 
 import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle"
@@ -69,6 +69,17 @@ const postTable = createTable("post", {
 })
 
 export type Post = typeof postTable.$inferSelect
+
+export const postRelations = relations(postTable, ({ one }) => ({
+  user: one(userTable, {
+    fields: [postTable.userId],
+    references: [userTable.id],
+  }),
+}))
+
+export const userRelations = relations(userTable, ({ many }) => ({
+  posts: many(postTable),
+}))
 
 export { postTable, sessionTable, userTable }
 
