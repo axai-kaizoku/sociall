@@ -22,3 +22,8 @@ export const postDataInclude = {
 export type PostData = InferSelectModel<typeof postTable> & {
   user: UserDataSelect
 }
+
+export interface PostsPage {
+  posts: PostData[]
+  nextCursor: string | null
+}
