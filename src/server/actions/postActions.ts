@@ -1,11 +1,10 @@
 "use server"
 
-import { postDataInclude } from "@/lib/types"
+import { type PostData } from "@/lib/types"
 import { validateRequest } from "../auth"
 import { db } from "../db"
-import { postTable, userTable } from "../db/schema"
+import { postTable } from "../db/schema"
 import { createPostSchema } from "../db/validation"
-import { eq } from "drizzle-orm"
 
 export async function submitPost(input: string) {
   const { user } = await validateRequest()
@@ -64,5 +63,5 @@ export async function submitPost(input: string) {
     },
   })
 
-  return result
+  return result as PostData
 }
