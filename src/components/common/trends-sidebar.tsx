@@ -73,29 +73,6 @@ async function WhoToFollow() {
 
 const getTrendingTopics = unstable_cache(
   async (): Promise<{ hashtag: string; count: number }[]> => {
-    // const result = await db
-    //   .select({
-    //     data: sql<{ hashtag: string; count: bigint }[]>`
-    //   SELECT unnest(regexp_matches(content, '#[a-zA-Z0-9_]+', 'g')) AS hashtag, COUNT(*) AS count
-    //   FROM ${postTable}
-    //   GROUP BY (hashtag)
-    //   ORDER BY count DESC, hashtag ASC
-    //   LIMIT 5
-    // `,
-    //   })
-    //   .from(postTable)
-
-    // const result = await db
-    //   .select({
-    //     postContent: postTable.content,
-    //     hashtag: sql`${postTable.content} REGEXP '^/#/+`,
-    //     // sql`${files.path} REGEXP '^/tmp/foo(5)/tutu`
-    //     // createdAt: postTable.createdAt,
-    //     count: sql<number>`count(${postTable.content})`.mapWith(Number),
-    //   })
-    //   .from(postTable)
-    //   .groupBy(sql`${postTable.content}`)
-
     const result = await db.execute(
       sql<{ hashtag: string; count: bigint }[]>`
           SELECT unnest(regexp_matches(content, '#[a-zA-Z0-9_]+', 'g')) AS hashtag, count(*) AS count
@@ -106,21 +83,10 @@ const getTrendingTopics = unstable_cache(
         `
     )
 
-    // console.log(res1)
-    // .orderBy(sql`${postTable.createdAt} desc nulls first`)
-    // [
-    //   { hashtag: '#chill', count: '2' },
-    //   { hashtag: '#react', count: '2' },
-    //   { hashtag: '#axai', count: '1' },
-    //   { hashtag: '#nextjs', count: '1' },
-    //   { hashtag: '#typescript', count: '1' }
-    // ]
-
     return result?.map((row) => ({
       hashtag: row.hashtag as string,
       count: Number(row.count),
     }))
-    // console.log(result)
   },
   ["trending_topics"],
   { revalidate: 3 * 60 * 60 }
