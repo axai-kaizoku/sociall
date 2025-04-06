@@ -48,6 +48,7 @@ export const DeletePostDialog = ({
           <LoadingButton
             variant="destructive"
             onClick={() => mutation.mutate(post.id, { onSuccess: onClose })}
+            loading={mutation.isPending}
           >
             Delete
           </LoadingButton>

@@ -33,6 +33,7 @@ export async function submitPost(input: string) {
         columns: {
           id: true,
           username: true,
+          displayName: true,
           avatarUrl: true,
         },
       },

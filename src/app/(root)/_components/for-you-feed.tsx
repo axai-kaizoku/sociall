@@ -1,7 +1,6 @@
 "use client"
 
 import { InfiniteScrollContainer } from "@/components/common/infinite-scroll-container"
-import { DeletePostDialog } from "@/components/posts/delete-post.dialog"
 import { Post } from "@/components/posts/post"
 import { PostsSkeleton } from "@/components/posts/posts.skeleton"
 import { kyInstance } from "@/lib/ky"
@@ -59,13 +58,6 @@ export const ForYouFeed = () => {
     >
       {posts?.map((post) => <Post key={post.id} post={post} />)}
       {isFetchingNextPage && <Loader2 className="mx-auto my-3 animate-spin" />}
-      {/* <DeletePostDialog
-        post={posts[0]!}
-        open
-        onClose={() => {
-          console.log("open")
-        }}
-      /> */}
     </InfiniteScrollContainer>
   )
 }
