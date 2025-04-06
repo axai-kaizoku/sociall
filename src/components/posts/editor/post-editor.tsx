@@ -3,10 +3,9 @@
 import "./styles.editor.css"
 
 import { UserAvatar } from "@/components/common/user/user-avatar"
-import { Button, LoadingButton } from "@/components/ui/button"
+import { LoadingButton } from "@/components/ui/button"
 import { useSession } from "@/lib/providers/session-provider"
-import { submitPost } from "@/server/actions/postActions"
-import { useSubmitPostMutation } from "@/server/mutations/postMutations"
+import { useSubmitPostMutation } from "@/lib/queries/postMutations"
 import { Placeholder } from "@tiptap/extension-placeholder"
 import { EditorContent, useEditor } from "@tiptap/react"
 import { StarterKit } from "@tiptap/starter-kit"
