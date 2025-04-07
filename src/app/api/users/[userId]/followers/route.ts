@@ -1,12 +1,16 @@
 import type { FollowerInfo } from "@/lib/types"
 import { validateRequest } from "@/server/auth"
 import { db } from "@/server/db"
+import { followTable } from "@/server/db/schema"
+import { and, eq } from "drizzle-orm"
 
 export async function GET(
   req: Request,
-  { params: { userId } }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
+    const userId = (await params).userId
+
     const { user: loggedInUser } = await validateRequest()
 
     if (!loggedInUser) {
@@ -49,7 +53,59 @@ export async function GET(
 
 export async function POST(
   req: Request,
-  { params: { userId } }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
-  return new Response("POST")
+  try {
+    const userId = (await params).userId
+
+    const { user: loggedInUser } = await validateRequest()
+
+    if (!loggedInUser) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    await db
+      .insert(followTable)
+      .values({
+        followerId: loggedInUser.id,
+        followingId: userId,
+      })
+      .onConflictDoNothing({
+        target: [followTable.followerId, followTable.followingId],
+      })
+
+    return new Response()
+  } catch (error) {
+    console.error(error)
+    return Response.json({ error: "Internal Server Error" }, { status: 500 })
+  }
+}
+
+export async function DELETE(
+  req: Request,
+  { params }: { params: Promise<{ userId: string }> }
+) {
+  try {
+    const userId = (await params).userId
+
+    const { user: loggedInUser } = await validateRequest()
+
+    if (!loggedInUser) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    await db
+      .delete(followTable)
+      .where(
+        and(
+          eq(followTable.followerId, loggedInUser.id),
+          eq(followTable.followingId, userId)
+        )
+      )
+
+    return new Response()
+  } catch (error) {
+    console.error(error)
+    return Response.json({ error: "Internal Server Error" }, { status: 500 })
+  }
 }

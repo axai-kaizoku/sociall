@@ -4,11 +4,11 @@ import { Loader2 } from "lucide-react"
 import Link from "next/link"
 import { Suspense } from "react"
 import { UserAvatar } from "./user/user-avatar"
-import { Button } from "../ui/button"
 import { unstable_cache } from "next/cache"
 import { postTable } from "@/server/db/schema"
 import { sql } from "drizzle-orm"
 import { formatNumber } from "@/lib/utils"
+import { FollowButton } from "../follow-button"
 
 export const TrendsSidebar = () => {
   return (
@@ -41,6 +41,14 @@ async function WhoToFollow() {
       displayName: true,
       avatarUrl: true,
     },
+    with: {
+      followers: {
+        where: (follows, { eq }) => eq(follows.followerId, user.id),
+        columns: {
+          followerId: true,
+        },
+      },
+    },
     limit: 5,
   })
 
@@ -64,7 +72,16 @@ async function WhoToFollow() {
             </div>
           </Link>
 
-          <Button>Follow</Button>
+          {/* <Button>Follow</Button> */}
+          <FollowButton
+            userId={user.id}
+            initialState={{
+              followers: user.followers.length,
+              isFollowedByUser: user.followers.some(
+                ({ followerId }) => followerId === user.id
+              ),
+            }}
+          />
         </div>
       ))}
     </div>

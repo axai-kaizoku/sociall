@@ -66,11 +66,11 @@ const followTable = createTable(
   "follows",
   {
     followerId: text("follower_id"),
-    follower: text("user_id").references(() => userTable.id, {
+    follower: text("follower_user_id").references(() => userTable.id, {
       onDelete: "cascade",
     }),
     followingId: text("following_id"),
-    following: text("user_id").references(() => userTable.id, {
+    following: text("following_user_id").references(() => userTable.id, {
       onDelete: "cascade",
     }),
   },

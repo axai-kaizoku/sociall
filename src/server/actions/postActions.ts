@@ -3,7 +3,7 @@
 import { type PostData } from "@/lib/types"
 import { validateRequest } from "../auth"
 import { db } from "../db"
-import { postTable, userTable } from "../db/schema"
+import { postTable } from "../db/schema"
 import { createPostSchema } from "../db/validation"
 import { eq } from "drizzle-orm"
 
@@ -30,6 +30,14 @@ export async function submitPost(input: string) {
     where: (posts, { eq }) => eq(posts.id, insertedPost.id),
     with: {
       user: {
+        with: {
+          followers: {
+            where: (follows, { eq }) => eq(follows.followerId, user.id),
+            columns: {
+              followerId: true,
+            },
+          },
+        },
         columns: {
           id: true,
           username: true,
@@ -40,7 +48,7 @@ export async function submitPost(input: string) {
     },
   })
 
-  return result as PostData
+  return result as unknown as PostData
 }
 
 export async function deletePost(id: string) {
@@ -56,30 +64,57 @@ export async function deletePost(id: string) {
 
   if (post.userId !== user.id) throw new Error("Unauthorized")
 
-  // const deletedPost = await db
-  //   .delete(postTable)
-  //   .where(eq(postTable.id, id))
-  //   .returning()
+  const [deletedPost] = await db
+    .delete(postTable)
+    .where(eq(postTable.id, id))
+    .returning()
 
-  const deletedPost = db
-    .$with("deleted_post")
-    .as(db.delete(postTable).where(eq(postTable.id, id)).returning())
+  if (!deletedPost) {
+    throw new Error("Failed to delete post")
+  }
+
+  // const deletedPost = db
+  //   .$with("deleted_post")
+  //   .as(db.delete(postTable).where(eq(postTable.id, id)).returning())
 
   // Now use the CTE and join it with the user table
-  const [result] = await db
-    .with(deletedPost)
-    .select({
-      id: deletedPost.id,
-      content: deletedPost.content,
-      createdAt: deletedPost.createdAt,
+  // const [result] = await db
+  //   .with(deletedPost)
+  //   .select({
+  //     id: deletedPost.id,
+  //     content: deletedPost.content,
+  //     createdAt: deletedPost.createdAt,
+  //     user: {
+  //       id: userTable.id,
+  //       username: userTable.username,
+  //       displayName: userTable.displayName,
+  //       avatarUrl: userTable.avatarUrl,
+  //     },
+  //   })
+  //   .from(deletedPost)
+  //   .innerJoin(userTable, eq(deletedPost.userId, userTable.id))
+
+  const result = await db.query.postTable.findFirst({
+    where: (posts, { eq }) => eq(posts.id, deletedPost.id),
+    with: {
       user: {
-        id: userTable.id,
-        username: userTable.username,
-        avatarUrl: userTable.avatarUrl,
+        with: {
+          followers: {
+            where: (follows, { eq }) => eq(follows.followerId, user.id),
+            columns: {
+              followerId: true,
+            },
+          },
+        },
+        columns: {
+          id: true,
+          username: true,
+          displayName: true,
+          avatarUrl: true,
+        },
       },
-    })
-    .from(deletedPost)
-    .innerJoin(userTable, eq(deletedPost.userId, userTable.id))
+    },
+  })
 
   return result
 }
