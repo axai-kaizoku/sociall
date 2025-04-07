@@ -68,7 +68,9 @@ export async function POST(
       .insert(followTable)
       .values({
         followerId: loggedInUser.id,
+        follower: loggedInUser.id,
         followingId: userId,
+        following: userId,
       })
       .onConflictDoNothing({
         target: [followTable.followerId, followTable.followingId],

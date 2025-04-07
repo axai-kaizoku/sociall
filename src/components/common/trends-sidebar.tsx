@@ -5,7 +5,7 @@ import Link from "next/link"
 import { Suspense } from "react"
 import { UserAvatar } from "./user/user-avatar"
 import { unstable_cache } from "next/cache"
-import { postTable } from "@/server/db/schema"
+import { followTable, postTable } from "@/server/db/schema"
 import { sql } from "drizzle-orm"
 import { formatNumber } from "@/lib/utils"
 import { FollowButton } from "../follow-button"
@@ -32,9 +32,23 @@ async function WhoToFollow() {
   }
 
   const usersToFollow = await db.query.userTable.findMany({
-    where(fields, operators) {
-      return operators.not(operators.eq(fields.id, user.id))
-    },
+    where: (users, { and, not, eq, exists }) =>
+      and(
+        not(eq(users.id, user.id)),
+        not(
+          exists(
+            db
+              .select()
+              .from(followTable)
+              .where(
+                and(
+                  eq(followTable.followerId, user.id),
+                  eq(followTable.followingId, users.id)
+                )
+              )
+          )
+        )
+      ),
     columns: {
       id: true,
       username: true,
@@ -55,6 +69,7 @@ async function WhoToFollow() {
   return (
     <div className="space-y-5 rounded-2xl bg-card p-5 shadow-sm">
       <div className="text-xl font-bold">Who to follow</div>
+      {/* {JSON.stringify(usersToFollow)} */}
       {usersToFollow.map((user) => (
         <div className="flex items-center justify-baseline gap-3" key={user.id}>
           <Link
