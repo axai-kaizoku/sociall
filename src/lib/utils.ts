@@ -26,3 +26,13 @@ export function formatNumber(n: number): string {
     maximumFractionDigits: 1,
   }).format(n)
 }
+
+export function atUrl(username: string) {
+  return `/@${encodeURIComponent(username)}` // encodes '@' as %40
+}
+
+export function extractUsername(rawUsername: string) {
+  return rawUsername.startsWith("@")
+    ? rawUsername.slice(1)
+    : rawUsername.replace(/^%40/, "")
+}

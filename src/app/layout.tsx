@@ -7,7 +7,7 @@ import { Geist } from "next/font/google"
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | Sociall 00",
+    template: "%s • Sociall 00",
     default: "Sociall 00",
   },
   description: "A social media app",
