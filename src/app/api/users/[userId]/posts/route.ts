@@ -1,11 +1,16 @@
 import { validateRequest } from "@/server/auth"
 import { db } from "@/server/db"
 import { postTable } from "@/server/db/schema"
-import { lt } from "drizzle-orm"
+import { and, eq, lt } from "drizzle-orm"
 import type { NextRequest } from "next/server"
 
-export async function GET(req: NextRequest) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ userId: string }> }
+) {
   try {
+    const userId = (await params).userId
+
     const { user } = await validateRequest()
 
     if (!user) {
@@ -21,7 +26,7 @@ export async function GET(req: NextRequest) {
       : undefined
 
     const posts = await db.query.postTable.findMany({
-      where: whereClause,
+      where: and(eq(postTable.userId, userId), whereClause),
       orderBy: (postTable, { desc }) => [desc(postTable.createdAt)],
       limit: pageSize + 1,
       with: {

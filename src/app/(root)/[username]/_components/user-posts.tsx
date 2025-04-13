@@ -8,7 +8,7 @@ import type { PostsPage } from "@/lib/types"
 import { useInfiniteQuery } from "@tanstack/react-query"
 import { Loader2 } from "lucide-react"
 
-export const ForYouFeed = () => {
+export const UserPosts = ({ userId }: { userId: string }) => {
   const {
     data,
     fetchNextPage,
@@ -17,11 +17,11 @@ export const ForYouFeed = () => {
     isFetchingNextPage,
     status,
   } = useInfiniteQuery({
-    queryKey: ["post-feed", "for-you"],
+    queryKey: ["post-feed", "user-posts", userId],
     queryFn: ({ pageParam }) =>
       kyInstance
         .get(
-          "/api/posts/for-you",
+          `/api/users/${userId}/posts`,
           pageParam ? { searchParams: { cursor: pageParam } } : {}
         )
         .json<PostsPage>(),
@@ -41,7 +41,7 @@ export const ForYouFeed = () => {
   if (status === "success" && !posts.length && !hasNextPage) {
     return (
       <p className="text-center text-muted-foreground">
-        No one has posted anything yet.
+        This user hasn&apos;t posted anything yet.
       </p>
     )
   }

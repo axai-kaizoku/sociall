@@ -2,7 +2,13 @@
 // https://orm.drizzle.team/docs/sql-schema-declaration
 
 import { relations, sql } from "drizzle-orm"
-import { index, pgTableCreator, uuid, varchar } from "drizzle-orm/pg-core"
+import {
+  index,
+  pgTableCreator,
+  unique,
+  uuid,
+  varchar,
+} from "drizzle-orm/pg-core"
 
 import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle"
 import { drizzle } from "drizzle-orm/node-postgres"
@@ -56,6 +62,21 @@ const sessionTable = createTable("session", {
   }).notNull(),
 })
 
+const followTable = createTable(
+  "follows",
+  {
+    followerId: text("follower_id"),
+    follower: text("follower_user_id").references(() => userTable.id, {
+      onDelete: "cascade",
+    }),
+    followingId: text("following_id"),
+    following: text("following_user_id").references(() => userTable.id, {
+      onDelete: "cascade",
+    }),
+  },
+  (t) => [unique().on(t.followerId, t.followingId)]
+)
+
 const postTable = createTable("post", {
   id: uuid().defaultRandom().primaryKey(),
   content: varchar("content", { length: 4096 }),
@@ -79,8 +100,27 @@ export const postRelations = relations(postTable, ({ one }) => ({
 
 export const userRelations = relations(userTable, ({ many }) => ({
   posts: many(postTable),
+  followers: many(followTable, {
+    relationName: "followingUser",
+  }),
+  following: many(followTable, {
+    relationName: "followerUser",
+  }),
 }))
 
-export { postTable, sessionTable, userTable }
+export const followRelations = relations(followTable, ({ one }) => ({
+  followerUser: one(userTable, {
+    fields: [followTable.follower],
+    references: [userTable.id],
+    relationName: "followerUser",
+  }),
+  followingUser: one(userTable, {
+    fields: [followTable.following],
+    references: [userTable.id],
+    relationName: "followingUser",
+  }),
+}))
+
+export { postTable, sessionTable, userTable, followTable }
 
 export const adapter = new DrizzlePostgreSQLAdapter(db, sessionTable, userTable)

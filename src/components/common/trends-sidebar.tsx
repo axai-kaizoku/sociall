@@ -1,14 +1,14 @@
-import { validateRequest } from "@/server/auth"
+import { atUrl, formatNumber } from "@/lib/utils"
+import { usersToFollow } from "@/server/actions/userActions"
 import { db } from "@/server/db"
-import { Loader2 } from "lucide-react"
-import Link from "next/link"
-import { Suspense } from "react"
-import { UserAvatar } from "./user/user-avatar"
-import { Button } from "../ui/button"
-import { unstable_cache } from "next/cache"
 import { postTable } from "@/server/db/schema"
 import { sql } from "drizzle-orm"
-import { formatNumber } from "@/lib/utils"
+import { Loader2 } from "lucide-react"
+import { unstable_cache } from "next/cache"
+import Link from "next/link"
+import { Suspense } from "react"
+import { FollowButton } from "../follow-button"
+import { UserAvatar } from "./user/user-avatar"
 
 export const TrendsSidebar = () => {
   return (
@@ -25,32 +25,16 @@ export const TrendsSidebar = () => {
 }
 
 async function WhoToFollow() {
-  const { user } = await validateRequest()
-
-  if (!user) {
-    return null
-  }
-
-  const usersToFollow = await db.query.userTable.findMany({
-    where(fields, operators) {
-      return operators.not(operators.eq(fields.id, user.id))
-    },
-    columns: {
-      id: true,
-      username: true,
-      displayName: true,
-      avatarUrl: true,
-    },
-    limit: 5,
-  })
+  const users = await usersToFollow()
 
   return (
     <div className="space-y-5 rounded-2xl bg-card p-5 shadow-sm">
       <div className="text-xl font-bold">Who to follow</div>
-      {usersToFollow.map((user) => (
+      {/* {JSON.stringify(usersToFollow)} */}
+      {users?.map((user) => (
         <div className="flex items-center justify-baseline gap-3" key={user.id}>
           <Link
-            href={`/users/${user.username}`}
+            href={atUrl(user?.username)}
             className="flex items-center gap-3"
           >
             <UserAvatar avatarUrl={user.avatarUrl} className="flex-none" />
@@ -64,7 +48,16 @@ async function WhoToFollow() {
             </div>
           </Link>
 
-          <Button>Follow</Button>
+          {/* <Button>Follow</Button> */}
+          <FollowButton
+            userId={user.id}
+            initialState={{
+              followers: user.followers.length,
+              isFollowedByUser: user.followers.some(
+                ({ followerId }) => followerId === user.id
+              ),
+            }}
+          />
         </div>
       ))}
     </div>
@@ -94,6 +87,7 @@ const getTrendingTopics = unstable_cache(
 
 async function TrendingTopics() {
   const trendingTopics = await getTrendingTopics()
+
   return (
     <div className="space-y-5 rounded-2xl bg-card p-5 shadow-sm">
       <div className="text-xl font-bold">Trending Topics</div>
