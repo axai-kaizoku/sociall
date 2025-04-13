@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 "use client"
 
 import * as DialogPrimitive from "@radix-ui/react-dialog"
@@ -24,7 +22,7 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     className={cn(
       "fixed inset-0 z-50 bg-background/80 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-      className as string
+      className
     )}
     {...props}
     ref={ref}
@@ -66,7 +64,7 @@ const DialogContent = React.forwardRef<
     <DialogOverlay />
     <DialogPrimitive.Content
       ref={ref}
-      className={cn(DialogVariants({ side }), className as string)}
+      className={cn(DialogVariants({ side }), className)}
       {...props}
     >
       {children}
@@ -113,7 +111,7 @@ const DialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn("text-lg font-semibold text-foreground", className as string)}
+    className={cn("text-lg font-semibold text-foreground", className)}
     {...props}
   />
 ))
@@ -125,7 +123,7 @@ const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn("text-sm text-muted-foreground", className as string)}
+    className={cn("text-sm text-muted-foreground", className)}
     {...props}
   />
 ))
