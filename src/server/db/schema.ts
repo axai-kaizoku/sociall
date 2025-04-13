@@ -14,6 +14,7 @@ import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle"
 import { drizzle } from "drizzle-orm/node-postgres"
 import { text, timestamp } from "drizzle-orm/pg-core"
 import { Pool } from "pg"
+import { env } from "@/env"
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -25,7 +26,7 @@ export const createTable = pgTableCreator((name) => `sociall_${name}`)
 
 // ----
 
-const pool = new Pool({ ssl: true })
+const pool = new Pool({ ssl: true, connectionString: env.DATABASE_URL })
 const db = drizzle(pool)
 
 const userTable = createTable(
