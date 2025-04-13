@@ -42,16 +42,16 @@ export function getPostDataInclude() {
 // }
 
 export type UserData = {
-  postCount: number | undefined
   id: string
   username: string
   displayName: string
   avatarUrl: string | null
-  bio: string | null
-  createdAt: Date
+  bio?: string | null
+  createdAt?: Date
   followers: {
     followerId: string | null
   }[]
+  postCount?: number | undefined
 }
 
 export type PostData = InferSelectModel<typeof postTable> & {
