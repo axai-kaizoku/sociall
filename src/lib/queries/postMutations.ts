@@ -12,6 +12,7 @@ import {
 import { usePathname, useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { useSession } from "../providers/session-provider"
+import { atUrl } from "../utils"
 
 export function useSubmitPostMutation() {
   const queryClient = useQueryClient()
@@ -122,7 +123,7 @@ export function useDeletePostMutation() {
       toast.success("Post deleted")
 
       if (pathname === `/posts/${deletedPost.id}`) {
-        router.push(`/users/${deletedPost.user.username}`)
+        router.push(atUrl(deletedPost?.user?.username))
       }
     },
     onError(error) {

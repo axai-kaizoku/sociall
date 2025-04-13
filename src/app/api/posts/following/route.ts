@@ -44,11 +44,21 @@ export async function GET(req: NextRequest) {
       limit: pageSize + 1,
       with: {
         user: {
+          with: {
+            followers: {
+              where: (follows, { eq }) => eq(follows.followerId, user.id),
+              columns: {
+                followerId: true,
+              },
+            },
+          },
           columns: {
             id: true,
             username: true,
             displayName: true,
             avatarUrl: true,
+            bio: true,
+            createdAt: true,
           },
         },
       },

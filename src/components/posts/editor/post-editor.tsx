@@ -2,8 +2,8 @@
 
 import "./styles.editor.css"
 
-import { UserAvatar } from "@/components/common/user/user-avatar"
 import { LoadingButton } from "@/components/ui/button"
+import { UserAvatar } from "@/components/user/user-avatar"
 import { useSession } from "@/lib/providers/session-provider"
 import { useSubmitPostMutation } from "@/lib/queries/postMutations"
 import { Placeholder } from "@tiptap/extension-placeholder"
@@ -22,6 +22,16 @@ export const PostEditor = () => {
         placeholder: "What's on your mind?",
       }),
     ],
+    // editorProps: {
+    //   handleKeyDown(view, event) {
+    //     if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+    //       event.preventDefault()
+    //       void onSubmit()
+    //       return true
+    //     }
+    //     return false
+    //   },
+    // },
     immediatelyRender: false,
   })
 
@@ -55,6 +65,11 @@ export const PostEditor = () => {
           className="min-w-20"
         >
           Post
+          {/* {!mutation.isPending && (
+            <kbd className="-me-1 ms-0 hidden lg:inline-flex h-5 max-h-full items-center rounded border border-neutral-700 dark:border-neutral-300 bg-primary px-1 font-[inherit] text-[1rem] font-medium text-muted-foreground/95">
+              ⌘<span className="-mt-0.5">↵</span>
+            </kbd>
+          )} */}
         </LoadingButton>
       </div>
     </div>

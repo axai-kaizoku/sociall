@@ -4,8 +4,10 @@ import { useSession } from "@/lib/providers/session-provider"
 import type { PostData } from "@/lib/types"
 import { atUrl, formatRelativeDate } from "@/lib/utils"
 import Link from "next/link"
-import { UserAvatar } from "../common/user/user-avatar"
+import { Linkify } from "../linkify"
+import { UserAvatar } from "../user/user-avatar"
 import { PostActionButton } from "./post-action-button"
+import { UserToolTip } from "../user/user-tooltip"
 
 type PostProps = {
   post: PostData
@@ -19,16 +21,22 @@ export const Post = ({ post }: PostProps) => {
       <div className="flex justify-between gap-3">
         <div className="flex flex-warp gap-3">
           {/* {JSON.stringify(post)} */}
-          <Link href={atUrl(post?.user?.username)}>
-            <UserAvatar avatarUrl={post.user?.avatarUrl} />
-          </Link>
-          <div>
-            <Link
-              href={atUrl(post?.user?.username)}
-              className="block font-medium hover:underline"
-            >
-              {post.user?.displayName}
+          <UserToolTip user={post?.user}>
+            <Link href={atUrl(post?.user?.username)}>
+              <UserAvatar avatarUrl={post.user?.avatarUrl} />
             </Link>
+          </UserToolTip>
+
+          <div>
+            <UserToolTip user={post?.user}>
+              <Link
+                href={atUrl(post?.user?.username)}
+                className="block font-medium hover:underline"
+              >
+                {post?.user?.displayName}
+              </Link>
+            </UserToolTip>
+
             <Link
               href={`/posts/${post.id}`}
               className="block text-sm text-muted-foreground hover:underline"
@@ -44,7 +52,9 @@ export const Post = ({ post }: PostProps) => {
           />
         )}
       </div>
-      <div className="whitespace-pre-line break-words">{post.content}</div>
+      <Linkify>
+        <div className="whitespace-pre-line break-words">{post.content}</div>
+      </Linkify>
     </article>
   )
 }

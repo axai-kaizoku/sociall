@@ -8,7 +8,8 @@ import { unstable_cache } from "next/cache"
 import Link from "next/link"
 import { Suspense } from "react"
 import { FollowButton } from "../follow-button"
-import { UserAvatar } from "./user/user-avatar"
+import { UserAvatar } from "../user/user-avatar"
+import { UserToolTip } from "../user/user-tooltip"
 
 export const TrendsSidebar = () => {
   return (
@@ -33,20 +34,22 @@ async function WhoToFollow() {
       {/* {JSON.stringify(usersToFollow)} */}
       {users?.map((user) => (
         <div className="flex items-center justify-baseline gap-3" key={user.id}>
-          <Link
-            href={atUrl(user?.username)}
-            className="flex items-center gap-3"
-          >
-            <UserAvatar avatarUrl={user.avatarUrl} className="flex-none" />
-            <div>
-              <p className="line-clamp-1 break-all font-semibold hover:underline">
-                {user.displayName}
-              </p>
-              <p className="line-clamp-1 break-all text-muted-foreground">
-                {user.username}
-              </p>
-            </div>
-          </Link>
+          <UserToolTip user={user}>
+            <Link
+              href={atUrl(user?.username)}
+              className="flex items-center gap-3"
+            >
+              <UserAvatar avatarUrl={user.avatarUrl} className="flex-none" />
+              <div>
+                <p className="line-clamp-1 break-all font-semibold hover:underline">
+                  {user.displayName}
+                </p>
+                <p className="line-clamp-1 break-all text-muted-foreground">
+                  {user.username}
+                </p>
+              </div>
+            </Link>
+          </UserToolTip>
 
           {/* <Button>Follow</Button> */}
           <FollowButton

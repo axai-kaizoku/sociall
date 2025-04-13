@@ -1,5 +1,6 @@
 import { useDeletePostMutation } from "@/lib/queries/postMutations"
 import type { PostData } from "@/lib/types"
+import { Button, LoadingButton } from "../ui/button"
 import {
   Dialog,
   DialogContent,
@@ -8,7 +9,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../ui/dialog"
-import { Button, LoadingButton } from "../ui/button"
 
 export const DeletePostDialog = ({
   post,

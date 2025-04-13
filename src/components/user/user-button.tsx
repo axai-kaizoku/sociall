@@ -12,12 +12,12 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "../../ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu"
 import { UserAvatar } from "./user-avatar"
 import Link from "next/link"
 import { Check, LogOutIcon, Monitor, Moon, Sun, UserIcon } from "lucide-react"
 import { logout } from "@/server/actions/authActions"
-import { cn } from "@/lib/utils"
+import { atUrl, cn } from "@/lib/utils"
 import { useTheme } from "next-themes"
 import { useQueryClient } from "@tanstack/react-query"
 
@@ -36,7 +36,7 @@ export const UserButton = ({ className }: { className?: string }) => {
       <DropdownMenuContent>
         <DropdownMenuLabel>Logged in as @{user.username}</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <Link href={`/users/${user.username}`}>
+        <Link href={atUrl(user.username)}>
           <DropdownMenuItem>
             <UserIcon className="mr-2 size-4" />
             Profile
