@@ -6,8 +6,10 @@ import { useQuery } from "@tanstack/react-query"
 export default function Page() {
   const query = useQuery({
     queryKey: ["fetch-user-details"],
-    queryFn: () =>
-      kyInstance.get(`/api/users/bekbdkaqjvw552yi/followers`).json(),
+    queryFn: () => kyInstance.get(`/api/users/bekbdkaqjvw552yi/posts`).json(),
+    staleTime: 5 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   })
   return (
     <div>

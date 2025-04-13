@@ -1,18 +1,22 @@
 "use client"
 
+import type { PostsPage } from "@/lib/types"
+import { deletePost, submitPost } from "@/server/actions/postActions"
 import {
   useMutation,
   useQueryClient,
   type InfiniteData,
+  type Query,
   type QueryFilters,
 } from "@tanstack/react-query"
-import { toast } from "sonner"
-import type { PostsPage } from "@/lib/types"
-import { deletePost, submitPost } from "@/server/actions/postActions"
 import { usePathname, useRouter } from "next/navigation"
+import { toast } from "sonner"
+import { useSession } from "../providers/session-provider"
 
 export function useSubmitPostMutation() {
   const queryClient = useQueryClient()
+
+  const { user } = useSession()
 
   const mutation = useMutation({
     mutationFn: submitPost,
@@ -22,7 +26,16 @@ export function useSubmitPostMutation() {
         Error,
         InfiniteData<PostsPage, string | null>,
         readonly unknown[]
-      > = { queryKey: ["post-feed", "for-you"] }
+      > = {
+        queryKey: ["post-feed"],
+        predicate(query) {
+          return (
+            query.queryKey.includes("for-you") ||
+            (query.queryKey.includes("user-posts") &&
+              query.queryKey.includes(user.id))
+          )
+        },
+      }
 
       await queryClient.cancelQueries(queryFilter)
 
@@ -48,8 +61,15 @@ export function useSubmitPostMutation() {
 
       await queryClient.invalidateQueries({
         queryKey: queryFilter.queryKey,
-        predicate(query) {
-          return !query.state.data
+        predicate(
+          query: Query<
+            InfiniteData<PostsPage, string | null>,
+            Error,
+            InfiniteData<PostsPage, string | null>,
+            readonly unknown[]
+          >
+        ) {
+          return queryFilter?.predicate!(query) && !query.state.data
         },
       })
 

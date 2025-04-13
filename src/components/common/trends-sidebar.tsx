@@ -1,4 +1,4 @@
-import { formatNumber } from "@/lib/utils"
+import { atUrl, formatNumber } from "@/lib/utils"
 import { usersToFollow } from "@/server/actions/userActions"
 import { db } from "@/server/db"
 import { postTable } from "@/server/db/schema"
@@ -34,7 +34,7 @@ async function WhoToFollow() {
       {users?.map((user) => (
         <div className="flex items-center justify-baseline gap-3" key={user.id}>
           <Link
-            href={`/users/${user.username}`}
+            href={atUrl(user?.username)}
             className="flex items-center gap-3"
           >
             <UserAvatar avatarUrl={user.avatarUrl} className="flex-none" />
