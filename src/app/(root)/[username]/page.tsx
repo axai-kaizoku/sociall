@@ -1,8 +1,9 @@
 import { TrendsSidebar } from "@/components/common/trends-sidebar"
-import { FollowerCount } from "@/components/common/user/follower-count"
-import { UserAvatar } from "@/components/common/user/user-avatar"
 import { FollowButton } from "@/components/follow-button"
+import { Linkify } from "@/components/linkify"
 import { Button } from "@/components/ui/button"
+import { FollowerCount } from "@/components/user/follower-count"
+import { UserAvatar } from "@/components/user/user-avatar"
 import type { FollowerInfo, UserData } from "@/lib/types"
 import { extractUsername, formatNumber } from "@/lib/utils"
 import { getUser } from "@/server/actions/userActions"
@@ -111,9 +112,11 @@ async function UserProfile({
       {user?.bio && (
         <>
           <hr />
-          <div className="whitespace-pre-line overflow-hidden break-words">
-            {user?.bio}
-          </div>
+          <Linkify>
+            <div className="whitespace-pre-line overflow-hidden break-words">
+              {user?.bio}
+            </div>
+          </Linkify>
         </>
       )}
     </section>

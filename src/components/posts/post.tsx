@@ -4,7 +4,8 @@ import { useSession } from "@/lib/providers/session-provider"
 import type { PostData } from "@/lib/types"
 import { atUrl, formatRelativeDate } from "@/lib/utils"
 import Link from "next/link"
-import { UserAvatar } from "../common/user/user-avatar"
+import { Linkify } from "../linkify"
+import { UserAvatar } from "../user/user-avatar"
 import { PostActionButton } from "./post-action-button"
 
 type PostProps = {
@@ -44,7 +45,9 @@ export const Post = ({ post }: PostProps) => {
           />
         )}
       </div>
-      <div className="whitespace-pre-line break-words">{post.content}</div>
+      <Linkify>
+        <div className="whitespace-pre-line break-words">{post.content}</div>
+      </Linkify>
     </article>
   )
 }

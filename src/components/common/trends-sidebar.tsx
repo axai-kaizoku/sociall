@@ -8,7 +8,7 @@ import { unstable_cache } from "next/cache"
 import Link from "next/link"
 import { Suspense } from "react"
 import { FollowButton } from "../follow-button"
-import { UserAvatar } from "./user/user-avatar"
+import { UserAvatar } from "../user/user-avatar"
 
 export const TrendsSidebar = () => {
   return (

@@ -2,8 +2,8 @@
 
 import "./styles.editor.css"
 
-import { UserAvatar } from "@/components/common/user/user-avatar"
 import { LoadingButton } from "@/components/ui/button"
+import { UserAvatar } from "@/components/user/user-avatar"
 import { useSession } from "@/lib/providers/session-provider"
 import { useSubmitPostMutation } from "@/lib/queries/postMutations"
 import { Placeholder } from "@tiptap/extension-placeholder"

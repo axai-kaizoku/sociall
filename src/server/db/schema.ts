@@ -10,11 +10,11 @@ import {
   varchar,
 } from "drizzle-orm/pg-core"
 
+import { env } from "@/env"
 import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle"
 import { drizzle } from "drizzle-orm/node-postgres"
 import { text, timestamp } from "drizzle-orm/pg-core"
 import { Pool } from "pg"
-import { env } from "@/env"
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -122,6 +122,6 @@ export const followRelations = relations(followTable, ({ one }) => ({
   }),
 }))
 
-export { postTable, sessionTable, userTable, followTable }
+export { followTable, postTable, sessionTable, userTable }
 
 export const adapter = new DrizzlePostgreSQLAdapter(db, sessionTable, userTable)

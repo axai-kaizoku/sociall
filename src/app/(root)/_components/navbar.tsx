@@ -1,5 +1,5 @@
 import { SearchField } from "@/components/common/search-field"
-import { UserButton } from "@/components/common/user/user-button"
+import { UserButton } from "@/components/user/user-button"
 import Link from "next/link"
 
 export const Navbar = () => {
