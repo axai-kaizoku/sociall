@@ -92,7 +92,7 @@ async function UserProfile({
             <h1 className="text-3xl font-bold">{user?.displayName}</h1>
             <div className="text-muted-foreground">{`@${user?.username}`}</div>
           </div>
-          <div>Member since {formatDate(user.createdAt, "MMM d, yyyy")}</div>
+          <div>Member since {formatDate(user.createdAt!, "MMM d, yyyy")}</div>
           <div className="flex items-center gap-3">
             <span>
               Posts:{" "}
