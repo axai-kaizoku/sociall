@@ -1,9 +1,13 @@
 import { db } from "@/server/db"
-import { followTable, postTable } from "@/server/db/schema"
+import { followTable, postTable, userTable } from "@/server/db/schema"
 import { validateRequest } from "../auth"
 import { cache } from "react"
 import { notFound } from "next/navigation"
 import { eq, sql } from "drizzle-orm"
+import {
+  updateUserProfileSchema,
+  type UpdateUserProfileValues,
+} from "../db/validation"
 
 export const usersToFollow = cache(async () => {
   const { user } = await validateRequest()
@@ -83,3 +87,29 @@ export const getUser = cache(
     return { ...user, postCount: res?.count }
   }
 )
+
+export const updateUserProfile = async (input: UpdateUserProfileValues) => {
+  const validatedValues = updateUserProfileSchema.parse(input)
+
+  const { user } = await validateRequest()
+
+  if (!user) throw new Error("Unauthorized")
+
+  await db
+    .update(userTable)
+    .set({ ...validatedValues })
+    .where(eq(userTable.id, user.id))
+
+  const updatedUser = await db.query.userTable.findFirst({
+    where: eq(userTable.id, user.id),
+    with: {
+      followers: {
+        with: {
+          followerUser: true, // gets full user data of each follower
+        },
+      },
+    },
+  })
+
+  return updatedUser
+}

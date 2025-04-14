@@ -5,15 +5,15 @@ import type { NextRequest } from "next/server"
 
 export async function GET(req: NextRequest) {
   try {
+    const cursor = req.nextUrl.searchParams.get("cursor")
+
+    const pageSize = 10
+
     const { user } = await validateRequest()
 
     if (!user) {
       return Response.json({ error: "Unauthorized" }, { status: 401 })
     }
-
-    const cursor = req.nextUrl.searchParams.get("cursor")
-
-    const pageSize = 10
 
     // const whereClause = cursor
     //   ? lt(postTable.createdAt, new Date(cursor))
