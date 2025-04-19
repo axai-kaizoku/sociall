@@ -1,7 +1,7 @@
 import { TrendsSidebar } from "@/components/common/trends-sidebar"
 import { FollowButton } from "@/components/follow-button"
 import { Linkify } from "@/components/linkify"
-import { Button } from "@/components/ui/button"
+import { EditProfileButton } from "@/components/user/edit-profile-button"
 import { FollowerCount } from "@/components/user/follower-count"
 import { UserAvatar } from "@/components/user/user-avatar"
 import type { FollowerInfo, UserData } from "@/lib/types"
@@ -104,7 +104,7 @@ async function UserProfile({
           </div>
         </div>
         {user?.id === loggedInUserId ? (
-          <Button>Edit profile</Button>
+          <EditProfileButton user={user} />
         ) : (
           <FollowButton userId={user?.id} initialState={followerInfo} />
         )}
