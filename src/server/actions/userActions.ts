@@ -1,3 +1,5 @@
+"use server"
+
 import { db } from "@/server/db"
 import { followTable, postTable, userTable } from "@/server/db/schema"
 import { validateRequest } from "../auth"

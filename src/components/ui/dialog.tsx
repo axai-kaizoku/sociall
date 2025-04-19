@@ -65,7 +65,7 @@ const DialogContent = React.forwardRef<
     <DialogOverlay />
     <DialogPrimitive.Content
       ref={ref}
-      className={cn(DialogVariants({ side }), className)}
+      className={cn(DialogVariants({ side }), "space-y-2.5", className)}
       {...props}
     >
       {children}
