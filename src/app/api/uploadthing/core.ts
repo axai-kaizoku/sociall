@@ -3,7 +3,7 @@ import { db } from "@/server/db"
 import { userTable } from "@/server/db/schema"
 import { eq } from "drizzle-orm"
 import { createUploadthing, type FileRouter } from "uploadthing/next"
-import { UploadThingError } from "uploadthing/server"
+import { UploadThingError, UTApi } from "uploadthing/server"
 
 const f = createUploadthing()
 
@@ -19,6 +19,14 @@ export const fileRouter = {
       return { user }
     })
     .onUploadComplete(async ({ metadata, file }) => {
+      const oldAvatarUrl = metadata?.user?.avatarUrl
+
+      if (oldAvatarUrl) {
+        const key = oldAvatarUrl.split("/f/")[1]
+
+        await new UTApi().deleteFiles(key!)
+      }
+
       const newAvatarUrl = file.ufsUrl
 
       await db
