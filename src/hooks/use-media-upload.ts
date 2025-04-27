@@ -77,7 +77,9 @@ export const useMediaUpload = () => {
   }
 
   return {
-    handleStartUpload,
+    startUpload: handleStartUpload,
+    attachments,
+    isUploading,
     removeAttachment,
     reset,
     uploadProgress,

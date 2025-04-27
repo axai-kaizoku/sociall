@@ -6,7 +6,7 @@
 [ ] - file auto deleting cronjob
 [ ] - google oauth
 
-- currently 27/4/2025 19:03
+- currently 27/4/2025 20:57
 
-[ ] - completing use-media-upload hook. (mostly completed)
-[ ] - use it in the frontend
+[x] - completing use-media-upload hook. (mostly completed)
+[ ] - using it in the frontend

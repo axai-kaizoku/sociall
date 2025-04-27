@@ -4,6 +4,7 @@ import "./styles.editor.css"
 
 import { LoadingButton } from "@/components/ui/button"
 import { UserAvatar } from "@/components/user/user-avatar"
+import { useMediaUpload } from "@/hooks/use-media-upload"
 import { useSession } from "@/lib/providers/session-provider"
 import { useSubmitPostMutation } from "@/lib/queries/postMutations"
 import { Placeholder } from "@tiptap/extension-placeholder"
@@ -14,6 +15,15 @@ export const PostEditor = () => {
   const { user } = useSession()
 
   const mutation = useSubmitPostMutation()
+
+  const {
+    startUpload,
+    attachments,
+    isUploading,
+    removeAttachment,
+    reset: resetMediaUploads,
+    uploadProgress,
+  } = useMediaUpload()
 
   const editor = useEditor({
     extensions: [
@@ -41,11 +51,18 @@ export const PostEditor = () => {
     }) ?? ""
 
   const onSubmit = async () => {
-    mutation.mutate(input, {
-      onSuccess: () => {
-        editor?.commands.clearContent()
+    mutation.mutate(
+      {
+        content: input,
+        mediaIds: attachments.map((a) => a.mediaId).filter(Boolean) as string[],
       },
-    })
+      {
+        onSuccess: () => {
+          editor?.commands.clearContent()
+          resetMediaUploads()
+        },
+      }
+    )
   }
 
   return (
