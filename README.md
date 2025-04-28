@@ -2,11 +2,12 @@
 
 ## TODO
 
-[ ] - post attachments (file uploads)
-[ ] - file auto deleting cronjob
-[ ] - google oauth
+- [ ] post attachments (file uploads)
+- [ ] file auto deleting cronjob
+- [ ] google oauth
 
-- currently 27/4/2025 20:57
+- currently 28/4/2025 21:23
 
-[x] - completing use-media-upload hook. (mostly completed)
-[ ] - using it in the frontend
+- [x] completing use-media-upload hook. (mostly completed)
+- [x] using it in the frontend
+- [ ] fix the post to display media
