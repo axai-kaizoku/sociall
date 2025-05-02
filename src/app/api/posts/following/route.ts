@@ -15,10 +15,6 @@ export async function GET(req: NextRequest) {
       return Response.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    // const whereClause = cursor
-    //   ? lt(postTable.createdAt, new Date(cursor))
-    //   : undefined
-
     const following = await db.query.followTable.findMany({
       where: (f, { eq }) => eq(f.followerId, user.id),
       columns: {
@@ -61,6 +57,7 @@ export async function GET(req: NextRequest) {
             createdAt: true,
           },
         },
+        media: true,
       },
     })
 

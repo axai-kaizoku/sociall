@@ -11,8 +11,9 @@ import { cn } from "@/lib/utils"
 import { Placeholder } from "@tiptap/extension-placeholder"
 import { EditorContent, useEditor } from "@tiptap/react"
 import { StarterKit } from "@tiptap/starter-kit"
+import { useDropzone } from "@uploadthing/react"
 import { ImageIcon, Loader2, X } from "lucide-react"
-import { useRef } from "react"
+import { useRef, type ClipboardEvent } from "react"
 
 export const PostEditor = () => {
   const { user } = useSession()
@@ -27,6 +28,21 @@ export const PostEditor = () => {
     reset: resetMediaUploads,
     uploadProgress,
   } = useMediaUpload()
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    onDrop: startUpload,
+  })
+
+  const onPaste = async (e: ClipboardEvent<HTMLInputElement>) => {
+    const files = Array.from(e.clipboardData.items)
+      .filter((item) => item.kind === "file")
+      .map((item) => item.getAsFile()) as File[]
+
+    await startUpload(files)
+  }
+
+  const { onClick, ...rootProps } = getRootProps()
 
   const editor = useEditor({
     extensions: [
@@ -72,10 +88,17 @@ export const PostEditor = () => {
     <div className="flex flex-col gap-5 rounded-2xl bg-card p-5 shadow-sm">
       <div className="flex gap-5">
         <UserAvatar avatarUrl={user?.avatarUrl} className="hidden sm:inline" />
-        <EditorContent
-          editor={editor}
-          className="w-full max-h-[20rem] overflow-y-auto bg-background rounded-2xl px-5 py-3"
-        />
+        <div {...rootProps} className="w-full">
+          <EditorContent
+            editor={editor}
+            className={cn(
+              "w-full max-h-[20rem] overflow-y-auto bg-background rounded-2xl px-5 py-3",
+              isDragActive && "outline-dashed"
+            )}
+            onPaste={onPaste}
+          />
+          <input {...getInputProps()} />
+        </div>
       </div>
       {!!attachments.length && (
         <AttachmentPreviews
@@ -177,7 +200,7 @@ const AttachmentPreviews = ({
 }
 
 const AttachmentPreview = ({
-  attachment: { file, isUploading, mediaId },
+  attachment: { file, isUploading },
   onRemoveClick,
 }: {
   attachment: Attachment
@@ -206,7 +229,7 @@ const AttachmentPreview = ({
       {!isUploading && (
         <button
           onClick={onRemoveClick}
-          className="absolute right-3 top-3 rounded-full bg-foreground p-1.5 text-background transition-colors hover:bg-background/60"
+          className="absolute right-3 top-3 rounded-full bg-foreground p-1.5 text-background transition-colors hover:bg-foreground/60"
         >
           <X size={20} />
         </button>

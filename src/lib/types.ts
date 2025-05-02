@@ -1,4 +1,4 @@
-import type { postTable } from "@/server/db/schema"
+import type { Media, postTable } from "@/server/db/schema"
 import type { InferSelectModel } from "drizzle-orm"
 
 export function getUserDataSelect() {
@@ -64,6 +64,7 @@ export type PostData = InferSelectModel<typeof postTable> & {
       followerId: string
     }[]
   }
+  media: Media[]
 }
 
 export interface PostsPage {

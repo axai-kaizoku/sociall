@@ -43,8 +43,11 @@ export async function GET(req: NextRequest) {
             createdAt: true,
           },
         },
+        media: true,
       },
     })
+
+    // console.log(posts)
 
     const hasNextPage = posts.length > pageSize
     const dataPosts = hasNextPage ? posts.slice(0, pageSize) : posts

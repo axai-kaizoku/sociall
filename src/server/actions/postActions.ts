@@ -107,6 +107,8 @@ export async function submitPost(input: {
     return postWithRelations
   })
 
+  console.log(result)
+
   return result as unknown as PostData
 }
 

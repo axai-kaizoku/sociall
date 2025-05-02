@@ -46,6 +46,7 @@ export async function GET(
             avatarUrl: true,
           },
         },
+        media: true,
       },
     })
 
