@@ -55,7 +55,7 @@ export const UserToolTip = ({
             </div>
             {user?.bio && (
               <Linkify>
-                <div className="line-clamp-4 whitespace-pre-line">
+                <div className="line-clamp-2 whitespace-pre-line">
                   {user.bio}
                 </div>
               </Linkify>

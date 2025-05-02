@@ -4,6 +4,7 @@
 import { relations, sql } from "drizzle-orm"
 import {
   index,
+  pgEnum,
   pgTableCreator,
   unique,
   uuid,
@@ -23,8 +24,6 @@ import { Pool } from "pg"
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
 export const createTable = pgTableCreator((name) => `sociall_${name}`)
-
-// ----
 
 const pool = new Pool({ ssl: true, connectionString: env.DATABASE_URL })
 const db = drizzle(pool)
@@ -92,10 +91,35 @@ const postTable = createTable("post", {
 
 export type Post = typeof postTable.$inferSelect
 
-export const postRelations = relations(postTable, ({ one }) => ({
+export const mediaTypeEnum = pgEnum("media_type", ["IMAGE", "VIDEO"])
+
+const mediaTable = createTable("media", {
+  id: uuid().defaultRandom().primaryKey(),
+  postId: uuid("post_id").references(() => postTable.id, {
+    onDelete: "set null",
+  }),
+  type: mediaTypeEnum("type").notNull(),
+  url: text("url"),
+
+  createdAt: timestamp({ withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+})
+
+export type Media = typeof mediaTable.$inferSelect
+
+export const postRelations = relations(postTable, ({ one, many }) => ({
   user: one(userTable, {
     fields: [postTable.userId],
     references: [userTable.id],
+  }),
+  media: many(mediaTable),
+}))
+
+export const mediaRelations = relations(mediaTable, ({ one }) => ({
+  post: one(postTable, {
+    fields: [mediaTable.postId],
+    references: [postTable.id],
   }),
 }))
 
@@ -122,6 +146,6 @@ export const followRelations = relations(followTable, ({ one }) => ({
   }),
 }))
 
-export { followTable, postTable, sessionTable, userTable }
+export { followTable, postTable, sessionTable, userTable, mediaTable }
 
 export const adapter = new DrizzlePostgreSQLAdapter(db, sessionTable, userTable)

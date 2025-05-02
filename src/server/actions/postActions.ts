@@ -1,52 +1,113 @@
 "use server"
 
 import { type PostData } from "@/lib/types"
-import { eq } from "drizzle-orm"
+import { eq, inArray } from "drizzle-orm"
 import { validateRequest } from "../auth"
 import { db } from "../db"
-import { postTable } from "../db/schema"
+import { mediaTable, postTable } from "../db/schema"
 import { createPostSchema } from "../db/validation"
 
-export async function submitPost(input: string) {
+export async function submitPost(input: {
+  content: string
+  mediaIds: string[]
+}) {
   const { user } = await validateRequest()
 
   if (!user) throw new Error("Unauthorized")
 
-  const { content } = createPostSchema.parse({ content: input })
+  const { content, mediaIds } = createPostSchema.parse(input)
 
-  const [insertedPost] = await db
-    .insert(postTable)
-    .values({
-      content: content,
-      userId: user.id,
-    })
-    .returning()
+  // const [insertedPost] = await db
+  //   .insert(postTable)
+  //   .values({
+  //     content: content,
+  //     userId: user.id,
+  //   })
+  //   .returning()
 
-  if (!insertedPost) {
-    throw new Error("Failed to create post")
-  }
+  // if (!insertedPost) {
+  //   throw new Error("Failed to create post")
+  // }
 
-  const result = await db.query.postTable.findFirst({
-    where: (posts, { eq }) => eq(posts.id, insertedPost.id),
-    with: {
-      user: {
-        with: {
-          followers: {
-            where: (follows, { eq }) => eq(follows.followerId, user.id),
-            columns: {
-              followerId: true,
+  // const result = await db.query.postTable.findFirst({
+  //   where: (posts, { eq }) => eq(posts.id, insertedPost.id),
+  //   with: {
+  //     user: {
+  //       with: {
+  //         followers: {
+  //           where: (follows, { eq }) => eq(follows.followerId, user.id),
+  //           columns: {
+  //             followerId: true,
+  //           },
+  //         },
+  //       },
+  //       columns: {
+  //         id: true,
+  //         username: true,
+  //         displayName: true,
+  //         avatarUrl: true,
+  //       },
+  //     },
+  //     media: {
+  //       columns: {
+  //          id: true
+  //       }
+  //     }
+  //   },
+  // })
+
+  const result = await db.transaction(async (tx) => {
+    const [insertedPost] = await tx
+      .insert(postTable)
+      .values({
+        content: content,
+        userId: user.id,
+      })
+      .returning()
+
+    if (!insertedPost) {
+      throw new Error("Failed to create post")
+    }
+
+    if (mediaIds && mediaIds?.length > 0) {
+      await tx
+        .update(mediaTable)
+        .set({ postId: insertedPost.id })
+        .where(inArray(mediaTable.id, mediaIds))
+    }
+
+    const postWithRelations = await tx.query.postTable.findFirst({
+      where: (posts, { eq }) => eq(posts.id, insertedPost.id),
+      with: {
+        user: {
+          with: {
+            followers: {
+              where: (follows, { eq }) => eq(follows.followerId, user.id),
+              columns: {
+                followerId: true,
+              },
             },
           },
+          columns: {
+            id: true,
+            username: true,
+            displayName: true,
+            avatarUrl: true,
+            bio: true,
+          },
         },
-        columns: {
-          id: true,
-          username: true,
-          displayName: true,
-          avatarUrl: true,
-        },
+        media: true,
       },
-    },
+    })
+
+    if (!postWithRelations) {
+      throw new Error("Failed to retrieve post with relations")
+    }
+
+    return postWithRelations
   })
+
+  console.log(result)
 
   return result as unknown as PostData
 }

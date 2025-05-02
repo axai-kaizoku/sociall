@@ -2,12 +2,13 @@
 
 import { useSession } from "@/lib/providers/session-provider"
 import type { PostData } from "@/lib/types"
-import { atUrl, formatRelativeDate } from "@/lib/utils"
+import { atUrl, cn, formatRelativeDate } from "@/lib/utils"
 import Link from "next/link"
 import { Linkify } from "../linkify"
 import { UserAvatar } from "../user/user-avatar"
 import { PostActionButton } from "./post-action-button"
 import { UserToolTip } from "../user/user-tooltip"
+import type { Media } from "@/server/db/schema"
 
 type PostProps = {
   post: PostData
@@ -55,6 +56,48 @@ export const Post = ({ post }: PostProps) => {
       <Linkify>
         <div className="whitespace-pre-line break-words">{post.content}</div>
       </Linkify>
+      {!!post.media?.length && <MediaPreviews attachments={post?.media} />}
     </article>
   )
+}
+
+const MediaPreviews = ({ attachments }: { attachments: Media[] }) => (
+  <div
+    className={cn(
+      "flex flex-col gap-3",
+      attachments?.length > 1 && "sm:grid sm:grid-cols-2"
+    )}
+  >
+    {attachments.map((m, i) => (
+      <MediaPreview key={`${m.id}-${i}`} media={m} />
+    ))}
+  </div>
+)
+
+const MediaPreview = ({ media }: { media: Media }) => {
+  if (media.type === "IMAGE") {
+    return (
+      <img
+        src={media?.url ?? ""}
+        alt="Attachment"
+        width={500}
+        height={500}
+        className="mx-auto size-fit max-h-[30rem] rounded-2xl"
+      />
+    )
+  }
+
+  if (media.type === "VIDEO") {
+    return (
+      <div>
+        <video
+          src={media?.url ?? ""}
+          controls
+          className="mx-auto size-fit max-h-[30rem] rounded-2xl"
+        />
+      </div>
+    )
+  }
+
+  return <p className="text-destructive">Unsupported media type</p>
 }
