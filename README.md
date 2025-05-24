@@ -4,14 +4,12 @@
 
 - [x] post attachments (file uploads)
 - [x] added deleting route
+- [x] file auto deleting cronjob
 - [ ] file auto deleting cronjob
 - [ ] google oauth
+- [ ] websocket
 
-- currently 05/5/2025 10:54
+- currently 24/05/2025 16:28
 
-- [x] completing use-media-upload hook. (mostly completed)
-- [x] using it in the frontend
-- [x] fix the post to display media
-
-- [x] write the clear-uploads api endpoint
-- [ ] need to write a cronjob for deleting unused uploads
+- [x] need to write post pages
+- [ ] implement likes
