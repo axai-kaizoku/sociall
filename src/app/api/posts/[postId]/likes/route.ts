@@ -1,8 +1,8 @@
 import type { LikeInfo } from "@/lib/types"
 import { validateRequest } from "@/server/auth"
 import { db } from "@/server/db"
-import { postTable } from "@/server/db/schema"
-import { eq } from "drizzle-orm"
+import { likeTable, postTable } from "@/server/db/schema"
+import { and, eq } from "drizzle-orm"
 
 export async function GET(
   req: Request,
@@ -39,6 +39,62 @@ export async function GET(
     }
 
     return Response.json(data)
+  } catch (error) {
+    console.error(error)
+    return Response.json({ error: "Internal Server Error" }, { status: 500 })
+  }
+}
+
+export async function POST(
+  req: Request,
+  { params }: { params: Promise<{ postId: string }> }
+) {
+  try {
+    const postId = (await params).postId
+
+    const { user: loggedInUser } = await validateRequest()
+
+    if (!loggedInUser) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    await db
+      .insert(likeTable)
+      .values({
+        userId: loggedInUser?.id,
+        postId,
+      })
+      .onConflictDoNothing({
+        target: [likeTable.postId, likeTable.userId],
+      })
+
+    return new Response()
+  } catch (error) {
+    console.error(error)
+    return Response.json({ error: "Internal Server Error" }, { status: 500 })
+  }
+}
+
+export async function DELETE(
+  req: Request,
+  { params }: { params: Promise<{ postId: string }> }
+) {
+  try {
+    const postId = (await params).postId
+
+    const { user: loggedInUser } = await validateRequest()
+
+    if (!loggedInUser) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    await db
+      .delete(likeTable)
+      .where(
+        and(eq(likeTable.userId, loggedInUser.id), eq(likeTable.postId, postId))
+      )
+
+    return new Response()
   } catch (error) {
     console.error(error)
     return Response.json({ error: "Internal Server Error" }, { status: 500 })
