@@ -3,12 +3,13 @@
 import { useSession } from "@/lib/providers/session-provider"
 import type { PostData } from "@/lib/types"
 import { atUrl, cn, formatRelativeDate } from "@/lib/utils"
+import type { Media } from "@/server/db/schema"
 import Link from "next/link"
+import { LikeButton } from "../like-button"
 import { Linkify } from "../linkify"
 import { UserAvatar } from "../user/user-avatar"
-import { PostActionButton } from "./post-action-button"
 import { UserToolTip } from "../user/user-tooltip"
-import type { Media } from "@/server/db/schema"
+import { PostActionButton } from "./post-action-button"
 
 type PostProps = {
   post: PostData
@@ -57,6 +58,14 @@ export const Post = ({ post }: PostProps) => {
         <div className="whitespace-pre-line break-words">{post.content}</div>
       </Linkify>
       {!!post.media?.length && <MediaPreviews attachments={post?.media} />}
+      <hr className="text-muted-foreground" />
+      <LikeButton
+        postId={post?.id}
+        initialState={{
+          likes: post?.likes?.length,
+          isLikedByUser: post?.likes?.some((like) => like.userId === user?.id),
+        }}
+      />
     </article>
   )
 }
