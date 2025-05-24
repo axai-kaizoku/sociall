@@ -6,6 +6,8 @@ import { validateRequest } from "../auth"
 import { db } from "../db"
 import { mediaTable, postTable } from "../db/schema"
 import { createPostSchema } from "../db/validation"
+import { cache } from "react"
+import { notFound } from "next/navigation"
 
 export async function submitPost(input: {
   content: string
@@ -147,3 +149,44 @@ export async function deletePost(id: string) {
 
   return post
 }
+
+export const getPost = cache(
+  async ({
+    postId,
+    loggedInUserId,
+  }: {
+    postId: string
+    loggedInUserId: string
+  }) => {
+    // const post = await db.query
+    const post = await db.query.postTable.findFirst({
+      where: (posts, { eq }) => eq(posts.id, postId),
+      with: {
+        user: {
+          with: {
+            followers: {
+              where: (follows, { eq }) =>
+                eq(follows.followerId, loggedInUserId),
+              columns: {
+                followerId: true,
+              },
+            },
+          },
+          columns: {
+            id: true,
+            username: true,
+            displayName: true,
+            avatarUrl: true,
+            bio: true,
+            createdAt: true,
+          },
+        },
+        media: true,
+      },
+    })
+
+    if (!post) notFound()
+
+    return post as PostData
+  }
+)
