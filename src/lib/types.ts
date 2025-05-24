@@ -31,6 +31,7 @@ export function getPostDataInclude() {
   return {
     user: {
       select: getUserDataSelect(),
+      // you can get likes info here
     },
   }
 }
@@ -75,4 +76,9 @@ export interface PostsPage {
 export interface FollowerInfo {
   followers: number
   isFollowedByUser: boolean
+}
+
+export interface LikeInfo {
+  likes: number
+  isLikedByUser: boolean
 }
