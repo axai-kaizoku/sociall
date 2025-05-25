@@ -8,7 +8,7 @@ import type { PostsPage } from "@/lib/types"
 import { useInfiniteQuery } from "@tanstack/react-query"
 import { Loader2 } from "lucide-react"
 
-export const UserPosts = ({ userId }: { userId: string }) => {
+export const Saved = () => {
   const {
     data,
     fetchNextPage,
@@ -17,11 +17,11 @@ export const UserPosts = ({ userId }: { userId: string }) => {
     isFetchingNextPage,
     status,
   } = useInfiniteQuery({
-    queryKey: ["post-feed", "user-posts", userId],
+    queryKey: ["post-feed", "saved"],
     queryFn: ({ pageParam }) =>
       kyInstance
         .get(
-          `/api/users/${userId}/posts`,
+          "/api/posts/saved",
           pageParam ? { searchParams: { cursor: pageParam } } : {}
         )
         .json<PostsPage>(),
@@ -38,7 +38,7 @@ export const UserPosts = ({ userId }: { userId: string }) => {
   if (status === "success" && !posts.length && !hasNextPage) {
     return (
       <p className="text-center text-muted-foreground">
-        This user hasn&apos;t posted anything yet.
+        You don&apos;t have any saved posts.
       </p>
     )
   }
@@ -46,7 +46,7 @@ export const UserPosts = ({ userId }: { userId: string }) => {
   if (status === "error") {
     return (
       <p className="text-center text-destructive">
-        An error occurred while loading posts.
+        An error occurred while loading saved posts.
       </p>
     )
   }
