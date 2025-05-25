@@ -96,6 +96,19 @@ export async function submitPost(input: {
             displayName: true,
             avatarUrl: true,
             bio: true,
+            createdAt: true,
+          },
+        },
+        likes: {
+          where: (likes, { eq }) => eq(likes.userId, user.id),
+          columns: {
+            userId: true,
+          },
+        },
+        saved: {
+          where: (saved, { eq }) => eq(saved.userId, user.id),
+          columns: {
+            userId: true,
           },
         },
         media: true,
@@ -136,8 +149,23 @@ export async function deletePost(id: string) {
           username: true,
           displayName: true,
           avatarUrl: true,
+          bio: true,
+          createdAt: true,
         },
       },
+      likes: {
+        where: (likes, { eq }) => eq(likes.userId, user.id),
+        columns: {
+          userId: true,
+        },
+      },
+      saved: {
+        where: (saved, { eq }) => eq(saved.userId, user.id),
+        columns: {
+          userId: true,
+        },
+      },
+      media: true,
     },
   })
 
@@ -181,12 +209,24 @@ export const getPost = cache(
             createdAt: true,
           },
         },
+        likes: {
+          where: (likes, { eq }) => eq(likes.userId, loggedInUserId),
+          columns: {
+            userId: true,
+          },
+        },
+        saved: {
+          where: (saved, { eq }) => eq(saved.userId, loggedInUserId),
+          columns: {
+            userId: true,
+          },
+        },
         media: true,
       },
     })
 
     if (!post) notFound()
 
-    return post as PostData
+    return post as unknown as PostData
   }
 )

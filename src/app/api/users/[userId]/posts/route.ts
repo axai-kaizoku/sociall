@@ -44,6 +44,20 @@ export async function GET(
             username: true,
             displayName: true,
             avatarUrl: true,
+            bio: true,
+            createdAt: true,
+          },
+        },
+        likes: {
+          where: (likes, { eq }) => eq(likes.userId, user.id),
+          columns: {
+            userId: true,
+          },
+        },
+        saved: {
+          where: (saved, { eq }) => eq(saved.userId, user.id),
+          columns: {
+            userId: true,
           },
         },
         media: true,
