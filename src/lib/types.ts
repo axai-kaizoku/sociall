@@ -1,4 +1,4 @@
-import type { Media, postTable } from "@/server/db/schema"
+import type { Like, Media, postTable, Saved } from "@/server/db/schema"
 import type { InferSelectModel } from "drizzle-orm"
 
 export function getUserDataSelect() {
@@ -31,6 +31,7 @@ export function getPostDataInclude() {
   return {
     user: {
       select: getUserDataSelect(),
+      // you can get likes info here
     },
   }
 }
@@ -65,6 +66,8 @@ export type PostData = InferSelectModel<typeof postTable> & {
     }[]
   }
   media: Media[]
+  likes: Like[]
+  saved: Saved[]
 }
 
 export interface PostsPage {
@@ -75,4 +78,13 @@ export interface PostsPage {
 export interface FollowerInfo {
   followers: number
   isFollowedByUser: boolean
+}
+
+export interface LikeInfo {
+  likes: number
+  isLikedByUser: boolean
+}
+
+export interface SavedInfo {
+  isSavedByUser: boolean
 }

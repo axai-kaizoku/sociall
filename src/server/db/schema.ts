@@ -108,12 +108,49 @@ const mediaTable = createTable("media", {
 
 export type Media = typeof mediaTable.$inferSelect
 
+const likeTable = createTable(
+  "like",
+  {
+    userId: text("user_id").references(() => userTable.id, {
+      onDelete: "cascade",
+    }),
+    postId: uuid("post_id").references(() => postTable.id, {
+      onDelete: "cascade",
+    }),
+  },
+  (t) => [unique().on(t.userId, t.postId)]
+)
+
+export type Like = typeof likeTable.$inferSelect
+
+const savedTable = createTable(
+  "saved",
+  {
+    id: uuid().defaultRandom().primaryKey(),
+    userId: text("user_id").references(() => userTable.id, {
+      onDelete: "cascade",
+    }),
+    postId: uuid("post_id").references(() => postTable.id, {
+      onDelete: "cascade",
+    }),
+
+    createdAt: timestamp({ withTimezone: true })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+  (t) => [unique().on(t.userId, t.postId)]
+)
+
+export type Saved = typeof savedTable.$inferSelect
+
 export const postRelations = relations(postTable, ({ one, many }) => ({
   user: one(userTable, {
     fields: [postTable.userId],
     references: [userTable.id],
   }),
   media: many(mediaTable),
+  likes: many(likeTable),
+  saved: many(savedTable),
 }))
 
 export const mediaRelations = relations(mediaTable, ({ one }) => ({
@@ -131,6 +168,8 @@ export const userRelations = relations(userTable, ({ many }) => ({
   following: many(followTable, {
     relationName: "followerUser",
   }),
+  likes: many(likeTable),
+  saved: many(savedTable),
 }))
 
 export const followRelations = relations(followTable, ({ one }) => ({
@@ -146,6 +185,40 @@ export const followRelations = relations(followTable, ({ one }) => ({
   }),
 }))
 
-export { followTable, postTable, sessionTable, userTable, mediaTable }
+export const likeRelations = relations(likeTable, ({ one }) => ({
+  user: one(userTable, {
+    fields: [likeTable.userId],
+    references: [userTable.id],
+    relationName: "likedUser",
+  }),
+  post: one(postTable, {
+    fields: [likeTable.postId],
+    references: [postTable.id],
+    relationName: "likedPost",
+  }),
+}))
+
+export const savedRelations = relations(savedTable, ({ one }) => ({
+  user: one(userTable, {
+    fields: [savedTable.userId],
+    references: [userTable.id],
+    relationName: "savedUser",
+  }),
+  post: one(postTable, {
+    fields: [savedTable.postId],
+    references: [postTable.id],
+    relationName: "savedPost",
+  }),
+}))
+
+export {
+  followTable,
+  postTable,
+  sessionTable,
+  userTable,
+  mediaTable,
+  likeTable,
+  savedTable,
+}
 
 export const adapter = new DrizzlePostgreSQLAdapter(db, sessionTable, userTable)
