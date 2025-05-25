@@ -44,7 +44,6 @@ export async function GET(req: NextRequest) {
           },
         },
         likes: {
-          where: (likes, { eq }) => eq(likes.userId, user.id),
           columns: {
             userId: true,
           },

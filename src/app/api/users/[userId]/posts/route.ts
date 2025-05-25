@@ -49,7 +49,6 @@ export async function GET(
           },
         },
         likes: {
-          where: (likes, { eq }) => eq(likes.userId, user.id),
           columns: {
             userId: true,
           },

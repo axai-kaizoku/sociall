@@ -100,7 +100,6 @@ export async function submitPost(input: {
           },
         },
         likes: {
-          where: (likes, { eq }) => eq(likes.userId, user.id),
           columns: {
             userId: true,
           },
@@ -154,7 +153,6 @@ export async function deletePost(id: string) {
         },
       },
       likes: {
-        where: (likes, { eq }) => eq(likes.userId, user.id),
         columns: {
           userId: true,
         },
@@ -210,7 +208,6 @@ export const getPost = cache(
           },
         },
         likes: {
-          where: (likes, { eq }) => eq(likes.userId, loggedInUserId),
           columns: {
             userId: true,
           },
