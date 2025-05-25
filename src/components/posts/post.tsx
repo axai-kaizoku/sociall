@@ -10,6 +10,7 @@ import { Linkify } from "../linkify"
 import { UserAvatar } from "../user/user-avatar"
 import { UserToolTip } from "../user/user-tooltip"
 import { PostActionButton } from "./post-action-button"
+import { SaveButton } from "../save-button"
 
 type PostProps = {
   post: PostData
@@ -59,13 +60,25 @@ export const Post = ({ post }: PostProps) => {
       </Linkify>
       {!!post.media?.length && <MediaPreviews attachments={post?.media} />}
       <hr className="text-muted-foreground" />
-      <LikeButton
-        postId={post?.id}
-        initialState={{
-          likes: post?.likes?.length,
-          isLikedByUser: post?.likes?.some((like) => like.userId === user?.id),
-        }}
-      />
+      <div className="flex justify-between gap-5">
+        <LikeButton
+          postId={post?.id}
+          initialState={{
+            likes: post?.likes?.length,
+            isLikedByUser: post?.likes?.some(
+              (like) => like.userId === user?.id
+            ),
+          }}
+        />
+        <SaveButton
+          postId={post?.id}
+          initialState={{
+            isSavedByUser: post?.saved?.some(
+              (saved) => saved.userId === user?.id
+            ),
+          }}
+        />
+      </div>
     </article>
   )
 }

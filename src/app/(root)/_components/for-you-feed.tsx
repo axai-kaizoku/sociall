@@ -27,9 +27,6 @@ export const ForYouFeed = () => {
         .json<PostsPage>(),
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
-    staleTime: 5 * 60 * 1000,
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
   })
 
   const posts = data?.pages.flatMap((page) => page.posts) ?? []
