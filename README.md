@@ -5,11 +5,15 @@
 - [x] post attachments (file uploads)
 - [x] added deleting route
 - [x] file auto deleting cronjob
-- [ ] file auto deleting cronjob
-- [ ] google oauth
-- [ ] websocket
-
-- currently 24/05/2025 16:28
-
 - [x] need to write post pages
-- [ ] implement likes
+- [x] implement likes
+- [x] implement saved posts
+- [ ] add comments feature
+- [ ] add notifications also
+- [ ] google oauth
+- [ ] websocket (chat interface, dms)
+- [ ] global search
+
+- currently 25/05/2025 14:11
+
+- [ ] need to add comments
