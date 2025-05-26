@@ -14,6 +14,7 @@
 - [ ] websocket (chat interface, dms)
 - [ ] global search
 
-- currently 25/05/2025 14:11
+- currently 26/05/2025 09:48
 
-- [ ] need to add comments
+- [x] add comments schema
+- [ ] writing mutations for comment
