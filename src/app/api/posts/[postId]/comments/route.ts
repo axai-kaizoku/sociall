@@ -1,14 +1,20 @@
+import type { CommentsPage } from "@/lib/types"
 import { validateRequest } from "@/server/auth"
 import { db } from "@/server/db"
-import { postTable } from "@/server/db/schema"
-import { lt } from "drizzle-orm"
+import { commentTable } from "@/server/db/schema"
+import { gt } from "drizzle-orm"
 import type { NextRequest } from "next/server"
 
-export async function GET(req: NextRequest) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ postId: string }> }
+) {
   try {
+    const postId = (await params).postId
+
     const cursor = req.nextUrl.searchParams.get("cursor")
 
-    const pageSize = 10
+    const pageSize = 5
 
     const { user } = await validateRequest()
 
@@ -17,13 +23,14 @@ export async function GET(req: NextRequest) {
     }
 
     const whereClause = cursor
-      ? lt(postTable.createdAt, new Date(cursor))
+      ? gt(commentTable.createdAt, new Date(cursor))
       : undefined
 
-    const posts = await db.query.postTable.findMany({
-      where: whereClause,
-      orderBy: (postTable, { desc }) => [desc(postTable.createdAt)],
-      limit: pageSize + 1,
+    const comments = await db.query.commentTable.findMany({
+      where: (comments, { eq, and }) =>
+        and(eq(comments.postId, postId), whereClause),
+      orderBy: (comments, { asc }) => [asc(comments.createdAt)],
+      limit: -pageSize - 1,
       with: {
         user: {
           with: {
@@ -43,36 +50,21 @@ export async function GET(req: NextRequest) {
             createdAt: true,
           },
         },
-        likes: {
-          columns: {
-            userId: true,
-          },
-        },
-        saved: {
-          where: (saved, { eq }) => eq(saved.userId, user.id),
-          columns: {
-            userId: true,
-          },
-        },
-        media: true,
-        comments: true,
       },
     })
 
-    // console.log(posts)
-
-    const hasNextPage = posts.length > pageSize
-    const dataPosts = hasNextPage ? posts.slice(0, pageSize) : posts
-    const nextCursor = hasNextPage
-      ? dataPosts[dataPosts.length - 1]?.createdAt.toISOString()
+    const hasNextPage = comments.length > pageSize
+    const data = hasNextPage ? comments.slice(0, pageSize) : comments
+    const previousCursor = hasNextPage
+      ? data[data.length - 1]?.createdAt.toISOString()
       : null
 
-    const data = {
-      posts: posts.slice(0, pageSize),
-      nextCursor,
+    const response: CommentsPage = {
+      comments: data,
+      previousCursor: previousCursor!,
     }
 
-    return Response.json(data)
+    return Response.json(response)
   } catch (error) {
     console.error(error)
     return Response.json({ error: "Internal Server Error" }, { status: 500 })
