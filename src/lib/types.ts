@@ -136,3 +136,7 @@ export interface LikeInfo {
 export interface SavedInfo {
   isSavedByUser: boolean
 }
+
+export interface NotificationCountInfo {
+  unreadCount: number
+}
