@@ -3,6 +3,7 @@
 
 import { relations, sql } from "drizzle-orm"
 import {
+  boolean,
   index,
   pgEnum,
   pgTableCreator,
@@ -32,6 +33,11 @@ const db = drizzle(pool)
  * Enums
  */
 export const mediaTypeEnum = pgEnum("media_type", ["IMAGE", "VIDEO"])
+export const notificationTypeEnum = pgEnum("notification_type", [
+  "LIKE",
+  "FOLLOW",
+  "COMMENT",
+])
 
 /**
  * Tables
@@ -154,6 +160,29 @@ const commentTable = createTable("comment", {
     .notNull(),
 })
 
+const notificationTable = createTable("notifications", {
+  id: uuid().defaultRandom().primaryKey(),
+  recipientId: text("recipient_id")
+    .notNull()
+    .references(() => userTable.id, { onDelete: "cascade" }),
+  issuerId: text("issuer_id")
+    .notNull()
+    .references(() => userTable.id, { onDelete: "cascade" }),
+  postId: uuid("post_id").references(() => postTable.id, {
+    onDelete: "cascade",
+  }),
+  commentId: uuid("comment_id").references(() => commentTable.id, {
+    onDelete: "cascade",
+  }),
+
+  type: notificationTypeEnum("type").notNull(),
+  read: boolean("read").default(false),
+
+  createdAt: timestamp({ withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+})
+
 /**
  * Relations
  */
@@ -166,6 +195,9 @@ export const postRelations = relations(postTable, ({ one, many }) => ({
   likes: many(likeTable),
   saved: many(savedTable),
   comments: many(commentTable),
+  linkedNotifications: many(notificationTable, {
+    relationName: "notificationPost",
+  }),
 }))
 
 export const mediaRelations = relations(mediaTable, ({ one }) => ({
@@ -186,6 +218,12 @@ export const userRelations = relations(userTable, ({ many }) => ({
   likes: many(likeTable),
   saved: many(savedTable),
   comments: many(commentTable),
+  receivedNotifications: many(notificationTable, {
+    relationName: "notificationRecipient",
+  }),
+  issuedNotifications: many(notificationTable, {
+    relationName: "notificationIssuer",
+  }),
 }))
 
 export const followRelations = relations(followTable, ({ one }) => ({
@@ -227,7 +265,7 @@ export const savedRelations = relations(savedTable, ({ one }) => ({
   }),
 }))
 
-export const commentRelations = relations(commentTable, ({ one }) => ({
+export const commentRelations = relations(commentTable, ({ one, many }) => ({
   user: one(userTable, {
     fields: [commentTable.userId],
     references: [userTable.id],
@@ -238,7 +276,36 @@ export const commentRelations = relations(commentTable, ({ one }) => ({
     references: [postTable.id],
     relationName: "commentedPost",
   }),
+  linkedNotifications: many(notificationTable, {
+    relationName: "notificationComment",
+  }),
 }))
+
+export const notificationRelations = relations(
+  notificationTable,
+  ({ one }) => ({
+    recipient: one(userTable, {
+      fields: [notificationTable.recipientId],
+      references: [userTable.id],
+      relationName: "notificationRecipient",
+    }),
+    issuer: one(userTable, {
+      fields: [notificationTable.issuerId],
+      references: [userTable.id],
+      relationName: "notificationIssuer",
+    }),
+    post: one(postTable, {
+      fields: [notificationTable.postId],
+      references: [postTable.id],
+      relationName: "notificationPost",
+    }),
+    comment: one(commentTable, {
+      fields: [notificationTable.commentId],
+      references: [commentTable.id],
+      relationName: "notificationComment",
+    }),
+  })
+)
 
 /**
  * Types
@@ -253,6 +320,8 @@ export type Like = typeof likeTable.$inferSelect
 
 export type Saved = typeof savedTable.$inferSelect
 
+export type Notification = typeof notificationTable.$inferSelect
+
 export {
   followTable,
   postTable,
@@ -262,6 +331,7 @@ export {
   likeTable,
   savedTable,
   commentTable,
+  notificationTable,
 }
 
 export const adapter = new DrizzlePostgreSQLAdapter(db, sessionTable, userTable)
