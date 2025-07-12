@@ -11,6 +11,23 @@ import {
   type UpdateUserProfileValues,
 } from "../db/validation"
 
+export const awaitFor = async (ms: number) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(ms)
+    }, ms)
+  })
+}
+
+export const fetchData1 = async (ms: number) => {
+  await awaitFor(ms ?? 2000)
+  return { data: { id: 1, name: "test" } }
+}
+export const fetchData2 = async (ms: number) => {
+  await awaitFor(ms ?? 1000)
+  return { data: { id: 2, name: "data 2" } }
+}
+
 export const usersToFollow = cache(async () => {
   const { user } = await validateRequest()
 

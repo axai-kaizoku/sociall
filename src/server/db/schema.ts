@@ -28,6 +28,14 @@ export const createTable = pgTableCreator((name) => `sociall_${name}`)
 const pool = new Pool({ ssl: true, connectionString: env.DATABASE_URL })
 const db = drizzle(pool)
 
+/**
+ * Enums
+ */
+export const mediaTypeEnum = pgEnum("media_type", ["IMAGE", "VIDEO"])
+
+/**
+ * Tables
+ */
 const userTable = createTable(
   "user",
   {
@@ -48,8 +56,6 @@ const userTable = createTable(
     return [index("user_index").on(t.id)]
   }
 )
-
-export type User = typeof userTable.$inferSelect
 
 const sessionTable = createTable("session", {
   id: text("id").primaryKey(),
@@ -89,10 +95,6 @@ const postTable = createTable("post", {
     .notNull(),
 })
 
-export type Post = typeof postTable.$inferSelect
-
-export const mediaTypeEnum = pgEnum("media_type", ["IMAGE", "VIDEO"])
-
 const mediaTable = createTable("media", {
   id: uuid().defaultRandom().primaryKey(),
   postId: uuid("post_id").references(() => postTable.id, {
@@ -106,8 +108,6 @@ const mediaTable = createTable("media", {
     .notNull(),
 })
 
-export type Media = typeof mediaTable.$inferSelect
-
 const likeTable = createTable(
   "like",
   {
@@ -120,8 +120,6 @@ const likeTable = createTable(
   },
   (t) => [unique().on(t.userId, t.postId)]
 )
-
-export type Like = typeof likeTable.$inferSelect
 
 const savedTable = createTable(
   "saved",
@@ -141,8 +139,24 @@ const savedTable = createTable(
   (t) => [unique().on(t.userId, t.postId)]
 )
 
-export type Saved = typeof savedTable.$inferSelect
+const commentTable = createTable("comment", {
+  id: uuid().defaultRandom().primaryKey(),
+  content: varchar("content", { length: 4096 }),
+  userId: text("user_id")
+    .notNull()
+    .references(() => userTable.id, { onDelete: "cascade" }),
+  postId: uuid("post_id").references(() => postTable.id, {
+    onDelete: "cascade",
+  }),
 
+  createdAt: timestamp({ withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+})
+
+/**
+ * Relations
+ */
 export const postRelations = relations(postTable, ({ one, many }) => ({
   user: one(userTable, {
     fields: [postTable.userId],
@@ -151,6 +165,7 @@ export const postRelations = relations(postTable, ({ one, many }) => ({
   media: many(mediaTable),
   likes: many(likeTable),
   saved: many(savedTable),
+  comments: many(commentTable),
 }))
 
 export const mediaRelations = relations(mediaTable, ({ one }) => ({
@@ -170,6 +185,7 @@ export const userRelations = relations(userTable, ({ many }) => ({
   }),
   likes: many(likeTable),
   saved: many(savedTable),
+  comments: many(commentTable),
 }))
 
 export const followRelations = relations(followTable, ({ one }) => ({
@@ -211,6 +227,32 @@ export const savedRelations = relations(savedTable, ({ one }) => ({
   }),
 }))
 
+export const commentRelations = relations(commentTable, ({ one }) => ({
+  user: one(userTable, {
+    fields: [commentTable.userId],
+    references: [userTable.id],
+    relationName: "commentedUser",
+  }),
+  post: one(postTable, {
+    fields: [commentTable.postId],
+    references: [postTable.id],
+    relationName: "commentedPost",
+  }),
+}))
+
+/**
+ * Types
+ */
+export type User = typeof userTable.$inferSelect
+
+export type Post = typeof postTable.$inferSelect
+
+export type Media = typeof mediaTable.$inferSelect
+
+export type Like = typeof likeTable.$inferSelect
+
+export type Saved = typeof savedTable.$inferSelect
+
 export {
   followTable,
   postTable,
@@ -219,6 +261,7 @@ export {
   mediaTable,
   likeTable,
   savedTable,
+  commentTable,
 }
 
 export const adapter = new DrizzlePostgreSQLAdapter(db, sessionTable, userTable)
