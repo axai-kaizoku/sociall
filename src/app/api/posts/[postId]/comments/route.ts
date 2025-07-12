@@ -2,7 +2,7 @@ import type { CommentsPage } from "@/lib/types"
 import { validateRequest } from "@/server/auth"
 import { db } from "@/server/db"
 import { commentTable } from "@/server/db/schema"
-import { gt } from "drizzle-orm"
+import { lt } from "drizzle-orm"
 import type { NextRequest } from "next/server"
 
 export async function GET(
@@ -23,14 +23,14 @@ export async function GET(
     }
 
     const whereClause = cursor
-      ? gt(commentTable.createdAt, new Date(cursor))
+      ? lt(commentTable.createdAt, new Date(cursor))
       : undefined
 
     const comments = await db.query.commentTable.findMany({
       where: (comments, { eq, and }) =>
-        and(eq(comments.postId, postId), whereClause),
-      orderBy: (comments, { asc }) => [asc(comments.createdAt)],
-      limit: -pageSize - 1,
+        and(eq(comments.postId, postId), whereClause ?? undefined),
+      orderBy: (comments, { desc }) => [desc(comments.createdAt)],
+      limit: pageSize + 1,
       with: {
         user: {
           with: {
@@ -60,7 +60,7 @@ export async function GET(
       : null
 
     const response: CommentsPage = {
-      comments: data,
+      comments: data.reverse(),
       previousCursor: previousCursor!,
     }
 

@@ -18,5 +18,5 @@
 
 - [x] add comments schema
 - [x] writing mutations for comment
-- [ ] pagination not working correctly
+- [x] pagination not working correctly
 - [ ] add delete comment feature

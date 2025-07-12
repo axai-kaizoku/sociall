@@ -5,6 +5,7 @@ import { validateRequest } from "../auth"
 import { createCommentSchema } from "../db/validation"
 import { db } from "../db"
 import { commentTable } from "../db/schema"
+import { eq } from "drizzle-orm"
 
 export async function submitComment(input: {
   post: PostData
@@ -64,4 +65,46 @@ export async function submitComment(input: {
   console.log(result, "submitComment")
 
   return result as CommentData
+}
+
+export async function deleteComment(input: { id: string }) {
+  const { user } = await validateRequest()
+
+  if (!user) throw new Error("Unauthorized")
+
+  const comment = await db.query.commentTable.findFirst({
+    where: (cmtTable, { eq }) => eq(cmtTable.id, input.id),
+    with: {
+      user: {
+        with: {
+          followers: {
+            where: (follows, { eq }) => eq(follows.followerId, user.id),
+            columns: {
+              followerId: true,
+            },
+          },
+        },
+        columns: {
+          id: true,
+          username: true,
+          displayName: true,
+          avatarUrl: true,
+          bio: true,
+          createdAt: true,
+        },
+      },
+    },
+  })
+
+  if (!comment) throw new Error("Comment not found")
+
+  if (comment.userId !== user.id) {
+    throw new Error("Unauthorized")
+  }
+
+  await db.transaction(async (tx) => {
+    await tx.delete(commentTable).where(eq(commentTable.id, input.id))
+  })
+
+  return comment
 }
