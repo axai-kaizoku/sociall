@@ -1,6 +1,6 @@
 import { validateRequest } from "@/server/auth"
 import { db } from "@/server/db"
-import { notificationTable, postTable } from "@/server/db/schema"
+import { notificationTable } from "@/server/db/schema"
 import { and, eq, lt } from "drizzle-orm"
 import type { NextRequest } from "next/server"
 
