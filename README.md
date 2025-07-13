@@ -9,13 +9,11 @@
 - [x] implement likes
 - [x] implement saved posts
 - [x] add comments feature
-- [ ] add notifications also
-- [ ] google oauth
-- [ ] websocket (chat interface, dms)
+- [x] add notifications also
+- [x] google oauth
+- [x] websocket (chat interface, dms)
 - [ ] global search
 
-- currently 12/07/2025 21:36
+- currently 13/07/2025 22:47
 
-- [x] add notifications schema
-- [x] add notifications api
-- [ ] notifications ui
+- [ ] add search query
