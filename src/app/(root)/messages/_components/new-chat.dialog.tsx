@@ -38,8 +38,8 @@ export const NewChatDialog = ({
 
   const { data, isFetching, isError, isSuccess } = useQuery({
     queryKey: ["stream-users", searchInput],
-    queryFn: async () =>
-      client.queryUsers(
+    queryFn: async () => {
+      const allUsers = await client.queryUsers(
         {
           ...(searchInput
             ? {
@@ -55,7 +55,16 @@ export const NewChatDialog = ({
           user: 1,
         },
         { limit: 15 }
-      ),
+      )
+
+      const filtered = allUsers?.users
+        ?.filter((u) => u?.id !== loggedInUser.id)
+        ?.filter((u) => u?.role !== "admin")
+
+      console.log(filtered)
+
+      return filtered
+    },
   })
 
   const mutation = useMutation({
@@ -115,10 +124,10 @@ export const NewChatDialog = ({
             </div>
           )}
           <hr />
-
+          {/* {JSON.stringify(data)} */}
           <div className="h-96 overflow-y-auto">
             {isSuccess &&
-              data?.users?.map((user) => (
+              data?.map((user) => (
                 <UserResult
                   key={user?.id}
                   user={user}
@@ -133,7 +142,7 @@ export const NewChatDialog = ({
                   }}
                 />
               ))}
-            {isSuccess && !data?.users.length && (
+            {isSuccess && !data?.length && (
               <p className="my-3 text-center text-muted-foreground">
                 No users found. Try a different name.
               </p>

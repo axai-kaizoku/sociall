@@ -140,3 +140,7 @@ export interface SavedInfo {
 export interface NotificationCountInfo {
   unreadCount: number
 }
+
+export interface MessageCountInfo {
+  unreadCount: number
+}

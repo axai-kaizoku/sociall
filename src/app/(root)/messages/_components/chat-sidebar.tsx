@@ -2,13 +2,15 @@ import { Button } from "@/components/ui/button"
 import { useSession } from "@/lib/providers/session-provider"
 import { cn } from "@/lib/utils"
 import { MailPlus, X } from "lucide-react"
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import {
   ChannelList,
   ChannelPreviewMessenger,
+  useChatContext,
   type ChannelPreviewUIComponentProps,
 } from "stream-chat-react"
 import { NewChatDialog } from "./new-chat.dialog"
+import { useQueryClient } from "@tanstack/react-query"
 
 export const ChatSidebar = ({
   open,
@@ -18,6 +20,18 @@ export const ChatSidebar = ({
   onClose: () => void
 }) => {
   const { user } = useSession()
+
+  const queryClient = useQueryClient()
+
+  const { channel } = useChatContext()
+
+  useEffect(() => {
+    if (channel?.id) {
+      void queryClient.invalidateQueries({
+        queryKey: ["unread-messages-count"],
+      })
+    }
+  }, [channel?.id, queryClient])
 
   const ChannelPreviewCustom = useCallback(
     (props: ChannelPreviewUIComponentProps) => {
