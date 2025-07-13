@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button"
-import { Bell, Bookmark, HomeIcon, Mail } from "lucide-react"
-import Link from "next/link"
-import { NotificationsButton } from "./notifications-button"
 import { validateRequest } from "@/server/auth"
 import { db } from "@/server/db"
 import { notificationTable } from "@/server/db/schema"
 import { and, eq } from "drizzle-orm"
+import { Bookmark, HomeIcon, Mail } from "lucide-react"
+import Link from "next/link"
+import { NotificationsButton } from "./notifications-button"
 
 export const MenuBar = async ({ className }: { className?: string }) => {
   const { user } = await validateRequest()

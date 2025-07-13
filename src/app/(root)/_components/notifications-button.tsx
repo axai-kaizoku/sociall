@@ -25,7 +25,7 @@ export const NotificationsButton = ({
   return (
     <Button
       variant={"ghost"}
-      className="flex items-center justify-start gap-3"
+      className="flex px-3  items-center justify-start gap-3"
       title="Notifications"
       asChild
     >
@@ -33,7 +33,7 @@ export const NotificationsButton = ({
         <div className="relative">
           <Bell />
           {!!data?.unreadCount && (
-            <span className="absolute -right-1 -top-1 rounded-full bg-primary text-primary-foreground px-1 text-xs font-medium tabular-nums">
+            <span className="absolute -right-1.5 -top-1.5 rounded-full bg-primary text-primary-foreground px-1 text-[10px] font-medium tabular-nums">
               {data?.unreadCount}
             </span>
           )}
