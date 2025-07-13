@@ -2,6 +2,8 @@ import { Lucia, type Session, type User } from "lucia"
 import { cookies } from "next/headers"
 import { cache } from "react"
 import { adapter } from "./db/schema"
+import { Google } from "arctic"
+import { env } from "@/env"
 
 export const lucia = new Lucia(adapter, {
   sessionCookie: {
@@ -39,6 +41,12 @@ interface DatabaseUserAttributes {
   avatarUrl: string | null
   googleId: string | null
 }
+
+export const google = new Google(
+  String(env.GOOGLE_CLIENT_ID ?? ""),
+  String(env.GOOGLE_CLIENT_SECRET ?? ""),
+  `${String(env.NEXT_PUBLIC_BASE_URL ?? "")}/api/auth/callback/google`
+)
 
 export const validateRequest = cache(
   async (): Promise<
