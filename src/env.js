@@ -12,7 +12,6 @@ export const env = createEnv({
     UPLOADTHING_SECRET: z.string(),
     UPLOADTHING_APP_ID: z.string(),
     UPLOADTHING_TOKEN: z.string(),
-    STREAM_KEY: z.string(),
     STREAM_SECRET: z.string(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
@@ -26,6 +25,7 @@ export const env = createEnv({
    */
   client: {
     NEXT_PUBLIC_UPLOADTHING_APP_ID: z.string(),
+    NEXT_PUBLIC_STREAM_KEY: z.string(),
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
   },
 
@@ -41,7 +41,7 @@ export const env = createEnv({
     UPLOADTHING_APP_ID: process.env.UPLOADTHING_APP_ID,
     NEXT_PUBLIC_UPLOADTHING_APP_ID: process.env.NEXT_PUBLIC_UPLOADTHING_APP_ID,
     UPLOADTHING_TOKEN: process.env.UPLOADTHING_TOKEN,
-    STREAM_KEY: process.env.STREAM_KEY,
+    NEXT_PUBLIC_STREAM_KEY: process.env.NEXT_PUBLIC_STREAM_KEY,
     STREAM_SECRET: process.env.STREAM_SECRET,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
