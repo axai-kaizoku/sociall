@@ -1,8 +1,24 @@
 import { Button } from "@/components/ui/button"
-import { Bell, Bookmark, HomeIcon, Mail } from "lucide-react"
+import { validateRequest } from "@/server/auth"
+import { db } from "@/server/db"
+import { notificationTable } from "@/server/db/schema"
+import { and, eq } from "drizzle-orm"
+import { Bookmark, HomeIcon, Mail } from "lucide-react"
 import Link from "next/link"
+import { NotificationsButton } from "./notifications-button"
 
-export const MenuBar = ({ className }: { className?: string }) => {
+export const MenuBar = async ({ className }: { className?: string }) => {
+  const { user } = await validateRequest()
+
+  if (!user) return null
+
+  const unreadNotificationCount = await db.query.notificationTable.findMany({
+    where: and(
+      eq(notificationTable.recipientId, user.id),
+      eq(notificationTable.read, false)
+    ),
+  })
+
   return (
     <div className={className}>
       <Button
@@ -16,17 +32,9 @@ export const MenuBar = ({ className }: { className?: string }) => {
           <span className="hidden lg:inline">Home</span>
         </Link>
       </Button>
-      <Button
-        variant={"ghost"}
-        className="flex items-center justify-start gap-3"
-        title="Notifications"
-        asChild
-      >
-        <Link href="/notifications">
-          <Bell />
-          <span className="hidden lg:inline">Notifications</span>
-        </Link>
-      </Button>
+      <NotificationsButton
+        initialState={{ unreadCount: unreadNotificationCount.length }}
+      />
       <Button
         variant={"ghost"}
         className="flex items-center justify-start gap-3"

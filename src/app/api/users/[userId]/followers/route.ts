@@ -1,7 +1,7 @@
 import type { FollowerInfo } from "@/lib/types"
 import { validateRequest } from "@/server/auth"
 import { db } from "@/server/db"
-import { followTable } from "@/server/db/schema"
+import { followTable, notificationTable } from "@/server/db/schema"
 import { and, eq } from "drizzle-orm"
 
 export async function GET(
@@ -64,17 +64,25 @@ export async function POST(
       return Response.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    await db
-      .insert(followTable)
-      .values({
-        followerId: loggedInUser.id,
-        follower: loggedInUser.id,
-        followingId: userId,
-        following: userId,
+    await db.transaction(async (tx) => {
+      await tx
+        .insert(followTable)
+        .values({
+          followerId: loggedInUser.id,
+          follower: loggedInUser.id,
+          followingId: userId,
+          following: userId,
+        })
+        .onConflictDoNothing({
+          target: [followTable.followerId, followTable.followingId],
+        })
+
+      await tx.insert(notificationTable).values({
+        issuerId: loggedInUser.id,
+        recipientId: userId,
+        type: "FOLLOW",
       })
-      .onConflictDoNothing({
-        target: [followTable.followerId, followTable.followingId],
-      })
+    })
 
     return new Response()
   } catch (error) {
@@ -96,14 +104,26 @@ export async function DELETE(
       return Response.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    await db
-      .delete(followTable)
-      .where(
-        and(
-          eq(followTable.followerId, loggedInUser.id),
-          eq(followTable.followingId, userId)
+    await db.transaction(async (tx) => {
+      await tx
+        .delete(followTable)
+        .where(
+          and(
+            eq(followTable.followerId, loggedInUser.id),
+            eq(followTable.followingId, userId)
+          )
         )
-      )
+
+      await tx
+        .delete(notificationTable)
+        .where(
+          and(
+            eq(notificationTable.issuerId, loggedInUser.id),
+            eq(notificationTable.recipientId, userId),
+            eq(notificationTable.type, "FOLLOW")
+          )
+        )
+    })
 
     return new Response()
   } catch (error) {

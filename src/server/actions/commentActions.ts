@@ -4,7 +4,7 @@ import type { CommentData, PostData } from "@/lib/types"
 import { validateRequest } from "../auth"
 import { createCommentSchema } from "../db/validation"
 import { db } from "../db"
-import { commentTable } from "../db/schema"
+import { commentTable, notificationTable } from "../db/schema"
 import { eq } from "drizzle-orm"
 
 export async function submitComment(input: {
@@ -55,6 +55,16 @@ export async function submitComment(input: {
       },
     })
 
+    if (input.post.user.id !== user.id) {
+      await tx.insert(notificationTable).values({
+        issuerId: user.id,
+        recipientId: input.post.user.id,
+        postId: input.post.id,
+        commentId: insertedComment.id,
+        type: "COMMENT",
+      })
+    }
+
     if (!commentWithRelations) {
       throw new Error("Failed to retrieve comment with relations")
     }
@@ -62,7 +72,7 @@ export async function submitComment(input: {
     return commentWithRelations
   })
 
-  console.log(result, "submitComment")
+  // console.log(result, "submitComment")
 
   return result as CommentData
 }
@@ -104,6 +114,10 @@ export async function deleteComment(input: { id: string }) {
 
   await db.transaction(async (tx) => {
     await tx.delete(commentTable).where(eq(commentTable.id, input.id))
+
+    await tx
+      .delete(notificationTable)
+      .where(eq(notificationTable.commentId, input.id))
   })
 
   return comment

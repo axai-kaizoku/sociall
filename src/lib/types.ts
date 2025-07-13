@@ -2,6 +2,7 @@ import type {
   commentTable,
   Like,
   Media,
+  notificationTable,
   postTable,
   Saved,
 } from "@/server/db/schema"
@@ -91,6 +92,37 @@ export interface CommentsPage {
   previousCursor: string | null
 }
 
+export const notificationsInclude = {
+  issuer: {
+    select: {
+      username: true,
+      displayName: true,
+      avatarUrl: true,
+    },
+  },
+  post: {
+    select: {
+      content: true,
+    },
+  },
+}
+
+export type NotificationData = InferSelectModel<typeof notificationTable> & {
+  issuer: {
+    username: string
+    displayName: string
+    avatarUrl: string | null
+  }
+  post?: {
+    content: string | null
+  }
+}
+
+export interface NotificationsPage {
+  notifications: NotificationData[]
+  nextCursor: string | null
+}
+
 export interface FollowerInfo {
   followers: number
   isFollowedByUser: boolean
@@ -103,4 +135,8 @@ export interface LikeInfo {
 
 export interface SavedInfo {
   isSavedByUser: boolean
+}
+
+export interface NotificationCountInfo {
+  unreadCount: number
 }

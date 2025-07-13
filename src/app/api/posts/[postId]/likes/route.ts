@@ -1,7 +1,7 @@
 import type { LikeInfo } from "@/lib/types"
 import { validateRequest } from "@/server/auth"
 import { db } from "@/server/db"
-import { likeTable, postTable } from "@/server/db/schema"
+import { likeTable, notificationTable, postTable } from "@/server/db/schema"
 import { and, eq } from "drizzle-orm"
 
 export async function GET(
@@ -58,15 +58,37 @@ export async function POST(
       return Response.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    await db
-      .insert(likeTable)
-      .values({
-        userId: loggedInUser?.id,
-        postId,
-      })
-      .onConflictDoNothing({
-        target: [likeTable.postId, likeTable.userId],
-      })
+    const post = await db.query.postTable.findFirst({
+      where: eq(postTable.id, postId),
+      columns: {
+        userId: true,
+      },
+    })
+
+    if (!post) {
+      return Response.json({ error: "Post not found" }, { status: 404 })
+    }
+
+    await db.transaction(async (tx) => {
+      await tx
+        .insert(likeTable)
+        .values({
+          userId: loggedInUser?.id,
+          postId,
+        })
+        .onConflictDoNothing({
+          target: [likeTable.postId, likeTable.userId],
+        })
+
+      if (loggedInUser.id !== post.userId) {
+        await tx.insert(notificationTable).values({
+          issuerId: loggedInUser.id,
+          recipientId: post.userId,
+          postId,
+          type: "LIKE",
+        })
+      }
+    })
 
     return new Response()
   } catch (error) {
@@ -88,11 +110,38 @@ export async function DELETE(
       return Response.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    await db
-      .delete(likeTable)
-      .where(
-        and(eq(likeTable.userId, loggedInUser.id), eq(likeTable.postId, postId))
-      )
+    const post = await db.query.postTable.findFirst({
+      where: eq(postTable.id, postId),
+      columns: {
+        userId: true,
+      },
+    })
+
+    if (!post) {
+      return Response.json({ error: "Post not found" }, { status: 404 })
+    }
+
+    await db.transaction(async (tx) => {
+      await tx
+        .delete(likeTable)
+        .where(
+          and(
+            eq(likeTable.userId, loggedInUser.id),
+            eq(likeTable.postId, postId)
+          )
+        )
+
+      await tx
+        .delete(notificationTable)
+        .where(
+          and(
+            eq(notificationTable.issuerId, loggedInUser.id),
+            eq(notificationTable.recipientId, post.userId),
+            eq(notificationTable.postId, postId),
+            eq(notificationTable.type, "LIKE")
+          )
+        )
+    })
 
     return new Response()
   } catch (error) {
