@@ -15,6 +15,7 @@ import {
   type LoginValues,
   type SignUpValues,
 } from "../db/validation"
+import { streamServerClient } from "@/lib/stream"
 
 export async function signUp(
   credentials: SignUpValues
@@ -52,13 +53,20 @@ export async function signUp(
         error: "Email already exists",
       }
     }
+    await db.transaction(async (tx) => {
+      await tx.insert(userTable).values({
+        id: userId,
+        username: username,
+        displayName: username,
+        email: email,
+        passwordHash: passwordHash,
+      })
 
-    await db.insert(userTable).values({
-      id: userId,
-      username: username,
-      displayName: username,
-      email: email,
-      passwordHash: passwordHash,
+      await streamServerClient.upsertUser({
+        id: userId,
+        username,
+        name: username,
+      })
     })
 
     const session = await lucia.createSession(userId, {})

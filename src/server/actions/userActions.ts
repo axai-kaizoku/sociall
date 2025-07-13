@@ -10,6 +10,7 @@ import {
   updateUserProfileSchema,
   type UpdateUserProfileValues,
 } from "../db/validation"
+import { streamServerClient } from "@/lib/stream"
 
 export const awaitFor = async (ms: number) => {
   return new Promise((resolve) => {
@@ -114,21 +115,32 @@ export const updateUserProfile = async (input: UpdateUserProfileValues) => {
 
   if (!user) throw new Error("Unauthorized")
 
-  await db
-    .update(userTable)
-    .set({ ...validatedValues })
-    .where(eq(userTable.id, user.id))
+  const data = await db.transaction(async (tx) => {
+    await tx
+      .update(userTable)
+      .set({ ...validatedValues })
+      .where(eq(userTable.id, user.id))
 
-  const updatedUser = await db.query.userTable.findFirst({
-    where: eq(userTable.id, user.id),
-    with: {
-      followers: {
-        with: {
-          followerUser: true, // gets full user data of each follower
+    const updatedUser = await tx.query.userTable.findFirst({
+      where: eq(userTable.id, user.id),
+      with: {
+        followers: {
+          with: {
+            followerUser: true, // gets full user data of each follower
+          },
         },
       },
-    },
+    })
+
+    await streamServerClient.partialUpdateUser({
+      id: user?.id,
+      set: {
+        name: validatedValues.displayName,
+      },
+    })
+
+    return updatedUser
   })
 
-  return updatedUser
+  return data
 }

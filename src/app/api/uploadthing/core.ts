@@ -1,3 +1,4 @@
+import { streamServerClient } from "@/lib/stream"
 import { validateRequest } from "@/server/auth"
 import { db } from "@/server/db"
 import { mediaTable, userTable } from "@/server/db/schema"
@@ -29,10 +30,19 @@ export const fileRouter = {
 
       const newAvatarUrl = file.ufsUrl
 
-      await db
-        .update(userTable)
-        .set({ avatarUrl: newAvatarUrl })
-        .where(eq(userTable.id, metadata.user.id))
+      await Promise.all([
+        db
+          .update(userTable)
+          .set({ avatarUrl: newAvatarUrl })
+          .where(eq(userTable.id, metadata.user.id)),
+
+        streamServerClient.partialUpdateUser({
+          id: metadata?.user?.id,
+          set: {
+            image: newAvatarUrl,
+          },
+        }),
+      ])
 
       return { avatarUrl: newAvatarUrl }
     }),
