@@ -12,4 +12,5 @@
 - [x] add notifications also
 - [x] google oauth
 - [x] websocket (chat interface, dms)
-- [ ] global search
+- [x] global search
+
