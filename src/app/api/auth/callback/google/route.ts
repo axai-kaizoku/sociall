@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
       .json<{ id: string; name: string; email: string }>()
 
     const existingUser = await db.query.userTable.findFirst({
-      where: eq(userTable.id, googleUser.id),
+      where: eq(userTable.googleId, googleUser.id),
     })
 
     if (existingUser) {

@@ -12,8 +12,5 @@
 - [x] add notifications also
 - [x] google oauth
 - [x] websocket (chat interface, dms)
-- [ ] global search
+- [x] global search
 
-- currently 13/07/2025 22:47
-
-- [ ] add search query
