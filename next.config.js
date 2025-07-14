@@ -18,6 +18,13 @@ const config = {
     },
   },
   serverExternalPackages: ["@node-rs/argon2"],
+  rewrites: async () => {
+    return {
+      beforeFiles: [
+        { source: "/hashtag/:tag", destination: "/search?q=%23:tag" },
+      ],
+    }
+  },
 }
 
 export default config
