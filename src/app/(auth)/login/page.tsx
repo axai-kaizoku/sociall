@@ -26,7 +26,7 @@ export default function Page() {
         </div>
       </div>
       <img
-        src="/login-image.jpg"
+        src="/login.png"
         alt="Login"
         className="hidden w-1/2 object-cover md:block"
       />
